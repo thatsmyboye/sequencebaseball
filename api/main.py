@@ -92,9 +92,13 @@ def load_pitcher_data(pitcher_id: int) -> pd.DataFrame:
     data_path = DATA_DIR / pitcher_info["data_file"]
     
     if not data_path.exists():
+        # Provide helpful debug info for serverless environments
         raise HTTPException(
             status_code=404,
-            detail=f"Data file not found for {pitcher_info['name']}"
+            detail=f"Data file not found for {pitcher_info['name']}. "
+                   f"Expected path: {data_path}. "
+                   f"DATA_DIR exists: {DATA_DIR.exists()}. "
+                   f"Files in DATA_DIR: {list(DATA_DIR.glob('*')) if DATA_DIR.exists() else 'N/A'}"
         )
     
     return pd.read_csv(data_path)
