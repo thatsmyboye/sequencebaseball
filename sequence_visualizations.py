@@ -630,27 +630,29 @@ def _create_small_multiples(
 ) -> plt.Figure:
     """
     Faceted view - separate chart for each metric
-    Easier to compare within a single metric
+    Each panel sorts sequences by its respective metric for easy comparison
     """
     plot_df = sequence_df.head(top_n).copy()
     
     metrics = ['Whiff Rate', 'Chase Rate', 'Weak Contact Rate']
     colors = [METRIC_COLORS['whiff'], METRIC_COLORS['chase'], METRIC_COLORS['weak_contact']]
     
-    fig, axes = plt.subplots(1, 3, figsize=(18, 8), dpi=100, sharey=True)
-    
-    y = np.arange(len(plot_df))
+    # Don't share y-axis since each panel has its own sort order
+    fig, axes = plt.subplots(1, 3, figsize=(18, 8), dpi=100, sharey=False)
     
     for ax, metric, color in zip(axes, metrics, colors):
         # Sort by this metric for this panel
-        sorted_df = plot_df.sort_values(metric, ascending=True)
+        sorted_df = plot_df.sort_values(metric, ascending=True).reset_index(drop=True)
         values = sorted_df[metric].values
+        
+        # Create y positions for this panel's sorted data
+        y = np.arange(len(sorted_df))
         
         # Horizontal bars
         bars = ax.barh(y, values, color=color, alpha=0.8, edgecolor='white', linewidth=1)
         
         # Value labels
-        for i, (bar, val, usage) in enumerate(zip(bars, values, sorted_df['Usage'])):
+        for i, (val, usage) in enumerate(zip(values, sorted_df['Usage'])):
             ax.text(val + 1, i, f'{val:.1f}', va='center', fontsize=10)
             ax.text(val + 6, i, f'n={usage}', va='center', fontsize=8, 
                     color='#888888', style='italic')
