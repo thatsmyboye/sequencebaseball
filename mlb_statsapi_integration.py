@@ -115,15 +115,17 @@ def extract_pitcher_pitches_from_game(game_id: int, pitcher_id: int) -> pd.DataF
         batter_id = batter.get('id')
         batter_side = play.get('matchup', {}).get('batSide', {}).get('code', '')
 
-        # Get count
-        balls = play.get('count', {}).get('balls', 0)
-        strikes = play.get('count', {}).get('strikes', 0)
-
         # Extract pitch events
         for event in play.get('playEvents', []):
             if event.get('isPitch'):
                 pitch_data = event.get('pitchData', {})
                 details = event.get('details', {})
+
+                # Get count from the pitch event (count BEFORE this pitch)
+                # Note: play.get('count') is the FINAL count, not per-pitch
+                pitch_count = event.get('count', {})
+                balls = pitch_count.get('balls', 0)
+                strikes = pitch_count.get('strikes', 0)
 
                 # Build pitch record (matching our Statcast-like format)
                 pitch = {
@@ -139,7 +141,7 @@ def extract_pitcher_pitches_from_game(game_id: int, pitcher_id: int) -> pd.DataF
                     'stand': batter_side,
                     'p_throws': play.get('matchup', {}).get('pitchHand', {}).get('code', ''),
 
-                    # Count
+                    # Count (from pitch event - count before this pitch was thrown)
                     'balls': balls,
                     'strikes': strikes,
 
@@ -173,12 +175,6 @@ def extract_pitcher_pitches_from_game(game_id: int, pitcher_id: int) -> pd.DataF
                 }
 
                 pitches.append(pitch)
-
-                # Update count for next pitch
-                if details.get('code') in ['B', 'V']:  # Ball or called ball
-                    balls = min(3, balls + 1)
-                elif details.get('code') in ['C', 'S', 'F']:  # Strike
-                    strikes = min(2, strikes + 1)
 
     df = pd.DataFrame(pitches)
     print(f"  Extracted {len(df)} pitches")
