@@ -9,11 +9,11 @@ This project analyzes pitch sequencing strategies and creates portfolio-ready vi
 ### Featured Pitchers
 
 1. **Tarik Skubal (DET)** - "The Tunnel Master"
-   - 2024 AL Cy Young Winner
+   - 2024 & 2025 AL Cy Young Winner
    - Elite fastball-slider tunnel combination
    - Focus: How his pitch sequencing dominated hitters
 
-2. **Jhoan Duran (MIN)** - "The Splinker"
+2. **Jhoan Duran (MIN/PHI)** - "The Splinker"
    - Hardest splitter in baseball (94 MPH avg)
    - Elite 100+ MPH fastball
    - Focus: Why his splitter is nearly unhittable
