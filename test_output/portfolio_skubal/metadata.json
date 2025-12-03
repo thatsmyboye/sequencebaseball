@@ -1,0 +1,17 @@
+{
+  "pitcher_name": "Tarik Skubal",
+  "pitcher_id": 669373,
+  "total_pitches": 2000,
+  "date_range": "2024-04-01 to 2024-05-22",
+  "arsenal": {
+    "4-Seam Fastball": 1074,
+    "Changeup": 104,
+    "Slider": 822
+  },
+  "avg_velocity_by_pitch": {
+    "4-Seam Fastball": 96.5,
+    "Changeup": 88.5,
+    "Slider": 86.0
+  },
+  "whiff_rate_overall": 26.6
+}

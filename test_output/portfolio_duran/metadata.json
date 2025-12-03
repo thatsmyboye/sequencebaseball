@@ -1,0 +1,17 @@
+{
+  "pitcher_name": "Jhoan Duran",
+  "pitcher_id": 650556,
+  "total_pitches": 1500,
+  "date_range": "2024-04-01 to 2024-05-13",
+  "arsenal": {
+    "4-Seam Fastball": 678,
+    "Slider": 67,
+    "Splitter": 755
+  },
+  "avg_velocity_by_pitch": {
+    "4-Seam Fastball": 100.4,
+    "Slider": 88.1,
+    "Splitter": 94.0
+  },
+  "whiff_rate_overall": 23.9
+}
