@@ -865,12 +865,16 @@ def create_interactive_table(
                 th.classList.add(asc ? 'sort-asc' : 'sort-desc');
                 
                 rows.sort((a, b) => {
-                    let aVal = a.children[idx].textContent.replace(/[^\\d.-]/g, '');
-                    let bVal = b.children[idx].textContent.replace(/[^\\d.-]/g, '');
+                    let aVal, bVal;
                     
                     if (type === 'number') {
-                        aVal = parseFloat(aVal) || 0;
-                        bVal = parseFloat(bVal) || 0;
+                        // Extract numeric content for number columns
+                        aVal = parseFloat(a.children[idx].textContent.replace(/[^\\d.-]/g, '')) || 0;
+                        bVal = parseFloat(b.children[idx].textContent.replace(/[^\\d.-]/g, '')) || 0;
+                    } else {
+                        // Use full text content for string columns
+                        aVal = a.children[idx].textContent.trim().toLowerCase();
+                        bVal = b.children[idx].textContent.trim().toLowerCase();
                     }
                     
                     if (aVal < bVal) return asc ? -1 : 1;
