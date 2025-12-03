@@ -1,0 +1,15 @@
+PITCHER PORTFOLIO: Tarik Skubal
+============================================================
+
+MLB ID: 669373
+Total Pitches Analyzed: 2,000
+Date Range: 2024-04-01 to 2024-05-22
+Overall Whiff Rate: 26.6%
+
+PITCH ARSENAL:
+------------------------------------------------------------
+4-Seam Fastball       1074 ( 53.7%)  Avg:  96.5 MPH
+Slider                 822 ( 41.1%)  Avg:  86.0 MPH
+Changeup               104 (  5.2%)  Avg:  88.5 MPH
+
+Data Source: MLB Statcast via pybaseball

@@ -1,0 +1,15 @@
+PITCHER PORTFOLIO: Jhoan Duran
+============================================================
+
+MLB ID: 650556
+Total Pitches Analyzed: 1,500
+Date Range: 2024-04-01 to 2024-05-13
+Overall Whiff Rate: 23.9%
+
+PITCH ARSENAL:
+------------------------------------------------------------
+Splitter               755 ( 50.3%)  Avg:  94.0 MPH
+4-Seam Fastball        678 ( 45.2%)  Avg: 100.4 MPH
+Slider                  67 (  4.5%)  Avg:  88.1 MPH
+
+Data Source: MLB Statcast via pybaseball

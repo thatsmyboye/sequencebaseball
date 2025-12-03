@@ -1,0 +1,9 @@
+Sequence,Usage,Whiff Rate,Chase Rate,Weak Contact Rate,Overall Score
+4-Seam Fastball → Slider,19,50.0,22.2,5.3,32.7
+Splitter → Slider,28,42.9,30.0,0.0,30.4
+Splitter → 4-Seam Fastball,250,28.3,40.4,9.6,28.2
+4-Seam Fastball → Splitter,269,25.6,52.8,11.9,31.0
+4-Seam Fastball → 4-Seam Fastball,237,23.5,47.9,16.0,29.3
+Splitter → Splitter,293,19.2,51.4,16.4,28.3
+Slider → Splitter,27,8.3,12.5,11.1,10.1
+Slider → 4-Seam Fastball,21,0.0,50.0,19.0,18.8
