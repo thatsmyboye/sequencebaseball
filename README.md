@@ -244,7 +244,6 @@ manifest = generate_portfolio_package(
 ## 📊 Generated Visualizations
 
 ### 3D Tunnel Visualizations
-![Tunnel visualization example](https://via.placeholder.com/800x400?text=3D+Pitch+Tunnel+Visualization)
 
 **Shows:**
 - Pitch trajectories from release to plate
@@ -253,7 +252,6 @@ manifest = generate_portfolio_package(
 - Strike zone reference
 
 ### Sequence Analysis Charts
-![Sequence chart example](https://via.placeholder.com/800x400?text=Sequence+Analysis+Chart)
 
 **Displays:**
 - Top 10 most effective sequences
@@ -262,7 +260,6 @@ manifest = generate_portfolio_package(
 - Color-coded metrics
 
 ### Movement Profiles
-![Movement profile example](https://via.placeholder.com/800x400?text=Movement+Profile)
 
 **Illustrates:**
 - Horizontal vs vertical break
@@ -270,7 +267,6 @@ manifest = generate_portfolio_package(
 - Mean markers for each pitch
 
 ### Velocity Distributions
-![Velocity distribution example](https://via.placeholder.com/800x400?text=Velocity+Distribution)
 
 **Features:**
 - Violin plots by pitch type
@@ -480,7 +476,7 @@ for p in pitchers:
 If you use this project in your research or analysis, please cite:
 
 ```
-Baseball Pitch Sequencing Visualization System (2024)
+Baseball Pitch Sequencing Visualization System (2025)
 Data Source: MLB Statcast via pybaseball
 ```
 
@@ -528,6 +524,4 @@ For questions or feedback about this project, please open an issue on GitHub.
 
 **Last Updated:** December 2025
 
-**Version:** 1.0.0
-
-**Status:** ✅ All phases complete
+**Version:** 0.1.0
