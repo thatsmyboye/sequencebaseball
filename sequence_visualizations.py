@@ -30,6 +30,7 @@ from matplotlib.colors import LinearSegmentedColormap
 import seaborn as sns
 from typing import Optional, Dict, List, Tuple
 from pathlib import Path
+import html
 
 # Color schemes
 METRIC_COLORS = {
@@ -70,9 +71,21 @@ class CompositeScoreConfig:
             Weight for weak contact rate (0-1)
         min_sample_size : int
             Minimum sample size for confidence adjustment
+            
+        Raises:
+        -------
+        ValueError
+            If all weights are zero or negative
         """
-        # Normalize weights to sum to 1
+        # Validate weights sum to positive value
         total = whiff_weight + chase_weight + weak_contact_weight
+        if total <= 0:
+            raise ValueError(
+                "Weights must sum to a positive value. "
+                f"Got: whiff={whiff_weight}, chase={chase_weight}, weak_contact={weak_contact_weight}"
+            )
+        
+        # Normalize weights to sum to 1
         self.whiff_weight = whiff_weight / total
         self.chase_weight = chase_weight / total
         self.weak_contact_weight = weak_contact_weight / total
@@ -692,7 +705,7 @@ def create_interactive_table(
     
     Returns:
     --------
-    html : str
+    html_content : str
         HTML string of the table
     """
     if score_config is None:
@@ -713,7 +726,7 @@ def create_interactive_table(
     df['Adjusted Score'] = adjusted_scores
     df = df.sort_values('Adjusted Score', ascending=False)
     
-    html = f'''<!DOCTYPE html>
+    html_content = f'''<!DOCTYPE html>
 <html>
 <head>
     <title>{pitcher_name} - Pitch Sequences{title_suffix}</title>
@@ -818,9 +831,11 @@ def create_interactive_table(
 '''
     
     for i, (_, row) in enumerate(df.iterrows(), 1):
-        html += f'''            <tr>
+        # Escape sequence text to prevent XSS if data contains special characters
+        escaped_sequence = html.escape(str(row['Sequence']))
+        html_content += f'''            <tr>
                 <td><span class="rank">{i}</span></td>
-                <td>{row['Sequence']}</td>
+                <td>{escaped_sequence}</td>
                 <td class="usage">n={row['Usage']}</td>
                 <td class="metric-whiff">{row['Whiff Rate']:.1f}</td>
                 <td class="metric-chase">{row['Chase Rate']:.1f}</td>
@@ -829,7 +844,7 @@ def create_interactive_table(
             </tr>
 '''
     
-    html += '''        </tbody>
+    html_content += '''        </tbody>
     </table>
     
     <script>
@@ -877,10 +892,10 @@ def create_interactive_table(
     
     if output_path:
         with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(html)
+            f.write(html_content)
         print(f"✓ Saved interactive table: {output_path}")
     
-    return html
+    return html_content
 
 
 # =============================================================================
