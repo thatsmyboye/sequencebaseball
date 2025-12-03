@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tarik Skubal - Pitch Sequences vs RHH</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #7B2D8E;
+            padding-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th {
+            background: linear-gradient(135deg, #7B2D8E 0%, #5a1f6a 100%);
+            color: white;
+            padding: 15px 10px;
+            text-align: left;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        th:hover {
+            background: linear-gradient(135deg, #8e3da3 0%, #6b2a7d 100%);
+        }
+        th::after {
+            content: ' ⇅';
+            opacity: 0.5;
+            font-size: 12px;
+        }
+        th.sort-asc::after { content: ' ▲'; opacity: 1; }
+        th.sort-desc::after { content: ' ▼'; opacity: 1; }
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background: #f8f4ff;
+        }
+        .metric-whiff { color: #E63946; font-weight: bold; }
+        .metric-chase { color: #D4A106; font-weight: bold; }
+        .metric-weak { color: #0891A8; font-weight: bold; }
+        .metric-score { color: #7B2D8E; font-weight: bold; font-size: 1.1em; }
+        .usage { color: #888; font-style: italic; }
+        .rank {
+            background: #7B2D8E;
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .weights {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <h1>Tarik Skubal - Pitch Sequence Analysis vs RHH</h1>
+    <div class="weights">
+        <strong>Composite Score Weights:</strong> 
+        Whiff 40% + 
+        Chase 35% + 
+        Weak Contact 25%
+    </div>
+    <table id="sequenceTable">
+        <thead>
+            <tr>
+                <th data-type="number">Rank</th>
+                <th data-type="string">Sequence</th>
+                <th data-type="number">Usage</th>
+                <th data-type="number">Whiff %</th>
+                <th data-type="number">Chase %</th>
+                <th data-type="number">Weak Contact %</th>
+                <th data-type="number">Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="rank">1</span></td>
+                <td>4-Seam Fastball → Changeup</td>
+                <td class="usage">n=18</td>
+                <td class="metric-whiff">40.0</td>
+                <td class="metric-chase">50.0</td>
+                <td class="metric-weak">11.1</td>
+                <td class="metric-score">37.2</td>
+            </tr>
+            <tr>
+                <td><span class="rank">2</span></td>
+                <td>Changeup → 4-Seam Fastball</td>
+                <td class="usage">n=19</td>
+                <td class="metric-whiff">22.2</td>
+                <td class="metric-chase">57.1</td>
+                <td class="metric-weak">15.8</td>
+                <td class="metric-score">33.7</td>
+            </tr>
+            <tr>
+                <td><span class="rank">3</span></td>
+                <td>Slider → 4-Seam Fastball</td>
+                <td class="usage">n=146</td>
+                <td class="metric-whiff">21.9</td>
+                <td class="metric-chase">47.3</td>
+                <td class="metric-weak">19.2</td>
+                <td class="metric-score">33.6</td>
+            </tr>
+            <tr>
+                <td><span class="rank">4</span></td>
+                <td>Slider → Slider</td>
+                <td class="usage">n=124</td>
+                <td class="metric-whiff">27.0</td>
+                <td class="metric-chase">42.6</td>
+                <td class="metric-weak">9.7</td>
+                <td class="metric-score">31.2</td>
+            </tr>
+            <tr>
+                <td><span class="rank">5</span></td>
+                <td>4-Seam Fastball → 4-Seam Fastball</td>
+                <td class="usage">n=202</td>
+                <td class="metric-whiff">25.3</td>
+                <td class="metric-chase">40.3</td>
+                <td class="metric-weak">10.9</td>
+                <td class="metric-score">30.5</td>
+            </tr>
+            <tr>
+                <td><span class="rank">6</span></td>
+                <td>4-Seam Fastball → Slider</td>
+                <td class="usage">n=140</td>
+                <td class="metric-whiff">31.3</td>
+                <td class="metric-chase">35.6</td>
+                <td class="metric-weak">5.0</td>
+                <td class="metric-score">29.2</td>
+            </tr>
+            <tr>
+                <td><span class="rank">7</span></td>
+                <td>Changeup → Slider</td>
+                <td class="usage">n=19</td>
+                <td class="metric-whiff">28.6</td>
+                <td class="metric-chase">20.0</td>
+                <td class="metric-weak">15.8</td>
+                <td class="metric-score">23.0</td>
+            </tr>
+            <tr>
+                <td><span class="rank">8</span></td>
+                <td>Slider → Changeup</td>
+                <td class="usage">n=14</td>
+                <td class="metric-whiff">0.0</td>
+                <td class="metric-chase">42.9</td>
+                <td class="metric-weak">7.1</td>
+                <td class="metric-score">17.0</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <script>
+        // Simple table sorting
+        document.querySelectorAll('th').forEach(th => {
+            th.addEventListener('click', () => {
+                const table = th.closest('table');
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const idx = Array.from(th.parentNode.children).indexOf(th);
+                const type = th.dataset.type;
+                const asc = !th.classList.contains('sort-asc');
+                
+                // Clear other sorts
+                th.parentNode.querySelectorAll('th').forEach(h => {
+                    h.classList.remove('sort-asc', 'sort-desc');
+                });
+                th.classList.add(asc ? 'sort-asc' : 'sort-desc');
+                
+                rows.sort((a, b) => {
+                    let aVal = a.children[idx].textContent.replace(/[^\d.-]/g, '');
+                    let bVal = b.children[idx].textContent.replace(/[^\d.-]/g, '');
+                    
+                    if (type === 'number') {
+                        aVal = parseFloat(aVal) || 0;
+                        bVal = parseFloat(bVal) || 0;
+                    }
+                    
+                    if (aVal < bVal) return asc ? -1 : 1;
+                    if (aVal > bVal) return asc ? 1 : -1;
+                    return 0;
+                });
+                
+                rows.forEach(row => tbody.appendChild(row));
+                
+                // Update ranks
+                tbody.querySelectorAll('tr').forEach((row, i) => {
+                    row.querySelector('.rank').textContent = i + 1;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
