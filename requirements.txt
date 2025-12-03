@@ -6,7 +6,7 @@
 
 # API Framework
 fastapi==0.104.1
-uvicorn[standard]==0.24.0
+uvicorn==0.24.0
 python-multipart==0.0.6
 
 # Data processing
