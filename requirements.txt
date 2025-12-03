@@ -1,0 +1,29 @@
+# Sequence Baseball API - Full Requirements
+# For Railway/Render/local deployment (full features)
+# Install with: pip install -r requirements.txt
+#
+# NOTE: For Vercel, use api/requirements.txt (lightweight, no visualizations)
+
+# API Framework
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+
+# Data processing
+pandas==2.1.3
+numpy==1.26.2
+
+# Visualization
+plotly==5.18.0
+matplotlib==3.8.2
+seaborn==0.13.0
+
+# Scientific computing (for trajectory calculations)
+scipy==1.11.4
+
+# Environment
+python-dotenv==1.0.0
+
+# MLB Data (optional - when network available)
+# pybaseball==2.2.7
+# MLB-StatsAPI==1.7.0

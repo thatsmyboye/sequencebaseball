@@ -646,9 +646,9 @@ def generate_portfolio_package(
         'avg_velocity_by_pitch': df.groupby('pitch_name')['release_speed'].mean().round(1).to_dict(),
         'whiff_rate_overall': round(
             len(df[df['description'] == 'swinging_strike']) /
-            len(df[df['description'].isin(['swinging_strike', 'foul', 'hit_into_play'])]) * 100,
+            len(df[df['description'].isin(['swinging_strike', 'foul', 'foul_tip', 'hit_into_play', 'swinging_strike_blocked'])]) * 100,
             1
-        ) if len(df[df['description'].isin(['swinging_strike', 'foul', 'hit_into_play'])]) > 0 else 0
+        ) if len(df[df['description'].isin(['swinging_strike', 'foul', 'foul_tip', 'hit_into_play', 'swinging_strike_blocked'])]) > 0 else 0
     }
 
     # Save metadata

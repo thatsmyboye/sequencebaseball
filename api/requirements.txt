@@ -1,0 +1,4 @@
+# Lightweight requirements for Vercel serverless
+# No pandas/numpy/matplotlib to stay under 250MB limit
+fastapi>=0.100.0
+
