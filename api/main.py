@@ -12,7 +12,7 @@ from typing import Optional, List
 from enum import Enum
 import io
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
@@ -167,6 +167,15 @@ class SequenceAnalysisResponse(BaseModel):
     batter_hand: Optional[str]
     sequences: List[SequenceData]
     total_sequences: int
+    message: Optional[str] = None
+
+
+class TableRequest(BaseModel):
+    """Request model for interactive table endpoint (no chart_type needed)"""
+    pitcher_id: int = Field(..., description="MLB pitcher ID")
+    batter_hand: Optional[BatterHand] = Field(None, description="Filter by batter handedness")
+    min_sample_size: int = Field(10, ge=1, le=100, description="Minimum sample size")
+    top_n: int = Field(10, ge=3, le=20, description="Number of top sequences")
 
 
 # =============================================================================
@@ -298,13 +307,13 @@ def generate_sequence_analysis(request: SequenceRequest):
         )
         
         if len(seq_df) == 0:
-            return {
-                "pitcher_name": pitcher_info["name"],
-                "batter_hand": batter_hand,
-                "sequences": [],
-                "total_sequences": 0,
-                "message": "No sequences found with specified criteria"
-            }
+            return SequenceAnalysisResponse(
+                pitcher_name=pitcher_info["name"],
+                batter_hand=batter_hand,
+                sequences=[],
+                total_sequences=0,
+                message="No sequences found with specified criteria"
+            )
         
         # Convert to response format
         sequences = [
@@ -334,14 +343,14 @@ def generate_sequence_analysis(request: SequenceRequest):
 
 @app.post("/visualizations/sequences/chart", response_class=HTMLResponse, tags=["Visualizations"])
 def generate_sequence_chart(
-    request: SequenceRequest,
-    score_config: Optional[CompositeScoreRequest] = None
+    request: TableRequest,
+    score_config: Optional[CompositeScoreRequest] = Body(None)
 ):
     """
-    Generate sequence visualization chart as PNG (base64) or interactive HTML table
+    Generate interactive HTML table for pitch sequence analysis
     
-    For chart_type 'interactive_table', returns full HTML page.
-    For other types, returns base64-encoded PNG image.
+    Returns a sortable HTML table with sequence metrics.
+    For PNG chart images, use /visualizations/sequences/chart-image instead.
     """
     try:
         df = load_pitcher_data(request.pitcher_id)
@@ -375,7 +384,7 @@ def generate_sequence_chart(
         
         # Generate interactive table (returns HTML)
         html_content = create_interactive_table(
-            sequence_df=seq_df,
+            sequence_df=seq_df.head(request.top_n),
             pitcher_name=pitcher_info["name"],
             batter_hand=batter_hand,
             score_config=config
@@ -392,7 +401,7 @@ def generate_sequence_chart(
 @app.post("/visualizations/sequences/chart-image", tags=["Visualizations"])
 def generate_sequence_chart_image(
     request: SequenceRequest,
-    score_config: Optional[CompositeScoreRequest] = None
+    score_config: Optional[CompositeScoreRequest] = Body(None)
 ):
     """
     Generate sequence visualization chart as base64-encoded PNG
