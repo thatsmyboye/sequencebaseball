@@ -194,6 +194,12 @@ def read_root():
     }
 
 
+@app.get("/health", tags=["Health"])
+def health_check():
+    """Health check endpoint for Railway/container orchestration"""
+    return {"status": "healthy", "service": "sequence-baseball-api"}
+
+
 @app.get("/pitchers", response_model=List[PitcherInfo], tags=["Pitchers"])
 def list_pitchers():
     """
@@ -511,6 +517,36 @@ def get_pitcher_summary(pitcher_id: int):
                 "start": str(df['game_date'].min()),
                 "end": str(df['game_date'].max())
             }
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/data/{pitcher_id}/movement", tags=["Data"])
+def get_movement_profile(pitcher_id: int):
+    """Get pitch movement profile data for visualization"""
+    try:
+        df = load_pitcher_data(pitcher_id)
+        pitcher_info = PITCHER_REGISTRY[pitcher_id]
+        
+        # Calculate movement stats by pitch type
+        movement_data = df.groupby('pitch_name').agg({
+            'pfx_x': ['mean', 'std'],
+            'pfx_z': ['mean', 'std'],
+            'release_speed': 'mean'
+        }).round(2)
+        
+        # Flatten column names
+        movement_data.columns = ['h_break_avg', 'h_break_std', 'v_break_avg', 'v_break_std', 'avg_velo']
+        movement_data = movement_data.reset_index()
+        
+        return {
+            "pitcher_id": pitcher_id,
+            "pitcher_name": pitcher_info["name"],
+            "movement": movement_data.to_dict(orient='records')
         }
     
     except HTTPException:
