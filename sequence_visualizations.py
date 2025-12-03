@@ -401,9 +401,9 @@ def _create_heatmap_matrix(
     Pitch-to-pitch transition matrix showing effectiveness
     Rows = "From" pitch, Columns = "To" pitch
     """
-    # Parse sequences to get from/to pitches
+    # Parse sequences to get from/to pitches (respect top_n limit)
     transitions = []
-    for _, row in sequence_df.iterrows():
+    for _, row in sequence_df.head(top_n).iterrows():
         parts = row['Sequence'].split(' → ')
         if len(parts) == 2:
             transitions.append({

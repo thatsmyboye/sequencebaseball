@@ -42,10 +42,11 @@ app = FastAPI(
 )
 
 # CORS middleware - allow frontend to call API
+# Note: allow_credentials=True requires specific origins, not wildcard
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Restrict in production to specific origins
-    allow_credentials=True,
+    allow_credentials=False,  # Cannot use True with wildcard origins
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -492,7 +493,9 @@ def get_pitcher_summary(pitcher_id: int):
         avg_velo_by_pitch = df.groupby('pitch_name')['release_speed'].mean().round(1).to_dict()
         
         total_pitches = len(df)
-        swings = df[df['description'].isin(['swinging_strike', 'foul', 'hit_into_play'])]
+        # Swing types must match analyze_pitch_sequences definition
+        swing_types = ['swinging_strike', 'foul', 'foul_tip', 'hit_into_play', 'swinging_strike_blocked']
+        swings = df[df['description'].isin(swing_types)]
         whiffs = df[df['description'] == 'swinging_strike']
         whiff_rate = round(len(whiffs) / len(swings) * 100, 1) if len(swings) > 0 else 0
         
