@@ -16,9 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose port (Railway sets PORT env var)
+# Expose port
 EXPOSE 8000
 
-# Run the application using shell form with /bin/sh -c for proper variable expansion
-CMD ["/bin/sh", "-c", "python -m uvicorn api.main:app --host 0.0.0.0 --port $PORT"]
+# Run the startup script (handles PORT env var in Python)
+CMD ["python", "start.py"]
 
