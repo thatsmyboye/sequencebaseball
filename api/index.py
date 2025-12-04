@@ -110,3 +110,4 @@ def get_summary(pitcher_id: int):
         "avg_velocity": avg_velo
     }
 
+
