@@ -68,7 +68,8 @@ def calculate_pitch_trajectory(row: pd.Series, num_points: int = 100) -> Tuple[n
     vy0 = row['vy0']
     vz0 = row['vz0']
 
-    # Accelerations (ft/s²) - NOTE: az is magnitude of downward acceleration
+    # Accelerations (ft/s²) - Statcast values are already signed
+    # (az is typically negative, around -32 ft/s² including gravity)
     ax = row['ax']
     ay = row['ay']
     az = row['az']
@@ -99,7 +100,7 @@ def calculate_pitch_trajectory(row: pd.Series, num_points: int = 100) -> Tuple[n
     # For x and z, blend physics with actual endpoint for accuracy
     # Physics-based trajectory
     x_physics = x0 + vx0 * t + 0.5 * ax * t**2
-    z_physics = z0 + vz0 * t - 0.5 * az * t**2  # NEGATED: az is downward magnitude
+    z_physics = z0 + vz0 * t + 0.5 * az * t**2
 
     # Blend factor (0 at start, 1 at end) to ensure we hit actual plate location
     blend = (t / total_time) ** 2  # Quadratic blend for smooth curve
@@ -379,7 +380,7 @@ def visualize_pitch_trajectories_3d(
         scene=dict(
             xaxis=dict(
                 title='← 3B          Horizontal Position (ft)          1B →',
-                range=[3, -3],  # Reversed: shows first base on RIGHT (standard catcher's view)
+                range=[-3, 3],  # Standard: negative x (3B) on left, positive x (1B) on right
                 showgrid=True,
                 gridcolor='lightgray',
                 zeroline=True,
