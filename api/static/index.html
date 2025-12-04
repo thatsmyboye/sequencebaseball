@@ -452,6 +452,56 @@
             font-size: 0.8rem;
         }
 
+        /* Sequence Footnote */
+        .sequence-footnote {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        .footnote-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .footnote-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.4rem;
+        }
+
+        .footnote-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .footnote-value {
+            color: var(--text-muted);
+        }
+
+        .footnote-value a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .footnote-value a:hover {
+            text-decoration: underline;
+        }
+
+        .formula {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            background: var(--bg-secondary);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
         /* Summary Panel */
         .summary-grid {
             display: grid;
@@ -876,6 +926,23 @@
             });
 
             tableHTML += `</tbody></table>`;
+            
+            // Add footnote with data citation and methodology
+            tableHTML += `
+                <div class="sequence-footnote">
+                    <div class="footnote-content">
+                        <div class="footnote-item">
+                            <span class="footnote-label">Data:</span>
+                            <span class="footnote-value"><a href="https://baseballsavant.mlb.com" target="_blank" rel="noopener">Statcast via Baseball Savant</a></span>
+                        </div>
+                        <div class="footnote-item">
+                            <span class="footnote-label">Score:</span>
+                            <span class="footnote-value">Weighted composite — <span class="formula">50% Whiff + 30% Chase + 20% Weak Contact</span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
             document.getElementById('sequences-content').innerHTML = tableHTML;
 
             // Setup table sorting
