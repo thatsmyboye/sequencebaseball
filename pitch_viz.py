@@ -451,7 +451,8 @@ def analyze_pitch_sequences(
     min_sample_size: int = 20,
     success_metric: str = 'whiff_rate',
     batter_hand: Optional[str] = None,
-    sequence_length: int = 2
+    sequence_length: int = 2,
+    sequence_position: str = 'any'
 ) -> pd.DataFrame:
     """
     Function 2: Sequence Analysis & Success Metrics
@@ -472,6 +473,10 @@ def analyze_pitch_sequences(
         'R' or 'L' to filter by batter handedness
     sequence_length : int
         Length of sequences to analyze (2 or 3 pitches)
+    sequence_position : str
+        'any' - all consecutive sequences (default)
+        'start' - only first 2 pitches of PA (excludes 1-pitch PAs)
+        'end' - only last 2 pitches of PA (excludes 1-pitch PAs)
 
     Returns:
     --------
@@ -498,9 +503,25 @@ def analyze_pitch_sequences(
     for ab_id, ab_group in filtered_df.groupby('at_bat_id'):
         ab_group = ab_group.sort_values('pitch_number')
         pitches = ab_group['pitch_name'].values
+        num_pitches = len(pitches)
 
-        # Create sequences of specified length
-        for i in range(len(pitches) - sequence_length + 1):
+        # Skip PAs with only 1 pitch for start/end filters
+        if sequence_position in ['start', 'end'] and num_pitches < 2:
+            continue
+
+        # Determine which indices to use based on sequence_position
+        if sequence_position == 'start':
+            # Only the first 2 pitches (index 0)
+            indices = [0] if num_pitches >= sequence_length else []
+        elif sequence_position == 'end':
+            # Only the last 2 pitches (last valid index)
+            indices = [num_pitches - sequence_length] if num_pitches >= sequence_length else []
+        else:  # 'any'
+            # All consecutive sequences
+            indices = range(num_pitches - sequence_length + 1)
+
+        # Create sequences for selected indices
+        for i in indices:
             sequence = tuple(pitches[i:i + sequence_length])
 
             # Get outcome of final pitch in sequence

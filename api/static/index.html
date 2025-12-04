@@ -285,14 +285,33 @@
             font-weight: 600;
         }
 
-        .batter-toggle {
+        .sequences-filters {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .batter-toggle, .position-toggle {
             display: flex;
             background: var(--bg-tertiary);
             border-radius: 8px;
             overflow: hidden;
         }
 
-        .batter-btn {
+        .batter-btn, .position-btn {
             background: transparent;
             border: none;
             color: var(--text-secondary);
@@ -303,12 +322,17 @@
             transition: all 0.2s;
         }
 
-        .batter-btn:hover {
+        .batter-btn:hover, .position-btn:hover {
             color: var(--text-primary);
         }
 
         .batter-btn.active {
             background: var(--accent-purple);
+            color: white;
+        }
+
+        .position-btn.active {
+            background: var(--accent-blue);
             color: white;
         }
 
@@ -617,10 +641,23 @@
             <div class="sequences-container">
                 <div class="sequences-header">
                     <h2 class="sequences-title">Pitch Sequence Effectiveness</h2>
-                    <div class="batter-toggle">
-                        <button class="batter-btn active" data-hand="">All</button>
-                        <button class="batter-btn" data-hand="R">vs RHH</button>
-                        <button class="batter-btn" data-hand="L">vs LHH</button>
+                    <div class="sequences-filters">
+                        <div class="filter-group">
+                            <span class="filter-label">Batter:</span>
+                            <div class="batter-toggle">
+                                <button class="batter-btn active" data-hand="">All</button>
+                                <button class="batter-btn" data-hand="R">vs RHH</button>
+                                <button class="batter-btn" data-hand="L">vs LHH</button>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <span class="filter-label">Position:</span>
+                            <div class="position-toggle">
+                                <button class="position-btn active" data-position="any" title="All two-pitch sequences within plate appearances">Any Sequence</button>
+                                <button class="position-btn" data-position="start" title="First 2 pitches of each plate appearance (excludes 1-pitch PAs)">Start of PA</button>
+                                <button class="position-btn" data-position="end" title="Last 2 pitches of each plate appearance (excludes 1-pitch PAs)">End of PA</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div id="sequences-content">
@@ -661,6 +698,7 @@
         // State
         let currentPitcher = null;
         let currentBatterHand = '';
+        let currentSequencePosition = 'any';
         let pitcherData = {};
 
         // API Base URL - detect if running locally or deployed
@@ -725,6 +763,16 @@
                 });
             });
 
+            // Sequence position toggle
+            document.querySelectorAll('.position-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.position-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentSequencePosition = btn.dataset.position;
+                    if (currentPitcher) loadSequences();
+                });
+            });
+
             // Load tunnel button
             document.getElementById('load-tunnel-btn').addEventListener('click', loadTunnel);
         }
@@ -751,7 +799,8 @@
                         pitcher_id: parseInt(currentPitcher.id),
                         batter_hand: currentBatterHand || null,
                         min_sample_size: 10,
-                        top_n: 15
+                        top_n: 15,
+                        sequence_position: currentSequencePosition
                     })
                 });
 

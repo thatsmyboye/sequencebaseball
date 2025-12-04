@@ -128,6 +128,12 @@ class ChartType(str, Enum):
     small_multiples = "small_multiples"
 
 
+class SequencePosition(str, Enum):
+    any = "any"           # All consecutive sequences (default)
+    start = "start"       # First 2 pitches of PA only
+    end = "end"           # Last 2 pitches of PA only
+
+
 class PitcherInfo(BaseModel):
     id: int
     name: str
@@ -151,6 +157,7 @@ class SequenceRequest(BaseModel):
     min_sample_size: int = Field(10, ge=1, le=100, description="Minimum sample size")
     chart_type: ChartType = Field(ChartType.composite_score, description="Visualization type")
     top_n: int = Field(10, ge=3, le=20, description="Number of top sequences")
+    sequence_position: SequencePosition = Field(SequencePosition.any, description="Position filter: any (all sequences), start (first 2 pitches), end (last 2 pitches)")
 
 
 class CompositeScoreRequest(BaseModel):
@@ -182,6 +189,7 @@ class TableRequest(BaseModel):
     batter_hand: Optional[BatterHand] = Field(None, description="Filter by batter handedness")
     min_sample_size: int = Field(10, ge=1, le=100, description="Minimum sample size")
     top_n: int = Field(10, ge=3, le=20, description="Number of top sequences")
+    sequence_position: SequencePosition = Field(SequencePosition.any, description="Position filter: any (all sequences), start (first 2 pitches), end (last 2 pitches)")
 
 
 # =============================================================================
@@ -326,12 +334,14 @@ def generate_sequence_analysis(request: SequenceRequest):
         batter_hand = request.batter_hand.value if request.batter_hand else None
         
         # Analyze sequences
+        sequence_position = request.sequence_position.value if request.sequence_position else 'any'
         seq_df = analyze_pitch_sequences(
             df=df,
             pitcher_name=pitcher_info["name"],
             batter_hand=batter_hand,
             min_sample_size=request.min_sample_size,
-            success_metric='overall'
+            success_metric='overall',
+            sequence_position=sequence_position
         )
         
         if len(seq_df) == 0:
@@ -385,6 +395,7 @@ def generate_sequence_chart(
         pitcher_info = PITCHER_REGISTRY[request.pitcher_id]
         
         batter_hand = request.batter_hand.value if request.batter_hand else None
+        sequence_position = request.sequence_position.value if request.sequence_position else 'any'
         
         # Analyze sequences
         seq_df = analyze_pitch_sequences(
@@ -392,7 +403,8 @@ def generate_sequence_chart(
             pitcher_name=pitcher_info["name"],
             batter_hand=batter_hand,
             min_sample_size=request.min_sample_size,
-            success_metric='overall'
+            success_metric='overall',
+            sequence_position=sequence_position
         )
         
         if len(seq_df) == 0:
@@ -444,6 +456,7 @@ def generate_sequence_chart_image(
         pitcher_info = PITCHER_REGISTRY[request.pitcher_id]
         
         batter_hand = request.batter_hand.value if request.batter_hand else None
+        sequence_position = request.sequence_position.value if request.sequence_position else 'any'
         
         # Analyze sequences
         seq_df = analyze_pitch_sequences(
@@ -451,7 +464,8 @@ def generate_sequence_chart_image(
             pitcher_name=pitcher_info["name"],
             batter_hand=batter_hand,
             min_sample_size=request.min_sample_size,
-            success_metric='overall'
+            success_metric='overall',
+            sequence_position=sequence_position
         )
         
         if len(seq_df) == 0:
