@@ -378,8 +378,8 @@ def visualize_pitch_trajectories_3d(
         ),
         scene=dict(
             xaxis=dict(
-                title='Horizontal Position (ft)',
-                range=[-3, 3],
+                title='← 3B          Horizontal Position (ft)          1B →',
+                range=[3, -3],  # Reversed: shows first base on RIGHT (standard catcher's view)
                 showgrid=True,
                 gridcolor='lightgray',
                 zeroline=True,
