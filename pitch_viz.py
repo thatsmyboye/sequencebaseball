@@ -39,7 +39,8 @@ STRIKE_ZONE = {
 
 def calculate_pitch_trajectory(row: pd.Series, num_points: int = 100) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Calculate 3D pitch trajectory from release point to home plate using physics
+    Calculate 3D pitch trajectory from release point to home plate using physics.
+    Uses actual plate crossing data for endpoint accuracy.
 
     Parameters:
     -----------
@@ -58,31 +59,67 @@ def calculate_pitch_trajectory(row: pd.Series, num_points: int = 100) -> Tuple[n
     y0 = row['release_pos_y']
     z0 = row['release_pos_z']
 
+    # Actual plate crossing point (from Statcast)
+    plate_x_final = row['plate_x']
+    plate_z_final = row['plate_z']
+
     # Initial velocities (ft/s)
     vx0 = row['vx0']
     vy0 = row['vy0']
     vz0 = row['vz0']
 
-    # Accelerations (ft/s²)
+    # Accelerations (ft/s²) - Statcast values are already signed
+    # (az is typically negative, around -32 ft/s² including gravity)
     ax = row['ax']
     ay = row['ay']
     az = row['az']
 
-    # Time to reach home plate (estimate based on y distance)
-    # Home plate is at y=0, release is around y=50-55
-    y_distance = y0
-    avg_velocity = abs(vy0)  # ft/s
-    total_time = y_distance / avg_velocity if avg_velocity > 0 else 0.4
+    # Solve quadratic for time: y0 + vy0*t + 0.5*ay*t² = 0
+    # ay is positive (drag slowing forward motion)
+    a_coef = 0.5 * ay
+    b_coef = vy0
+    c_coef = y0
+    
+    discriminant = b_coef**2 - 4 * a_coef * c_coef
+    if discriminant < 0 or a_coef == 0:
+        # Fallback to simple estimate
+        total_time = abs(y0 / vy0) if vy0 != 0 else 0.4
+    else:
+        # Take the smaller positive root
+        t1 = (-b_coef + np.sqrt(discriminant)) / (2 * a_coef)
+        t2 = (-b_coef - np.sqrt(discriminant)) / (2 * a_coef)
+        positive_times = [t for t in [t1, t2] if t > 0]
+        total_time = min(positive_times) if positive_times else 0.4
 
     # Time points
     t = np.linspace(0, total_time, num_points)
 
-    # Calculate position using kinematic equations: s = s0 + v0*t + 0.5*a*t²
-    x = x0 + vx0 * t + 0.5 * ax * t**2
+    # Calculate y position using kinematic equation
     y = y0 + vy0 * t + 0.5 * ay * t**2
-    z = z0 + vz0 * t + 0.5 * az * t**2
 
-    # Clip to home plate (y=0)
+    # For x and z, blend physics with actual endpoint for accuracy
+    # Physics-based trajectory
+    x_physics = x0 + vx0 * t + 0.5 * ax * t**2
+    z_physics = z0 + vz0 * t + 0.5 * az * t**2
+
+    # Blend factor (0 at start, 1 at end) to ensure we hit actual plate location
+    blend = (t / total_time) ** 2  # Quadratic blend for smooth curve
+    
+    # Calculate where physics says we'd end up
+    x_physics_end = x_physics[-1] if len(x_physics) > 0 else x0
+    z_physics_end = z_physics[-1] if len(z_physics) > 0 else z0
+    
+    # Blend to actual plate crossing (only if plate data is valid)
+    if not np.isnan(plate_x_final) and not np.isnan(plate_z_final):
+        x_correction = (plate_x_final - x_physics_end) * blend
+        z_correction = (plate_z_final - z_physics_end) * blend
+        x = x_physics + x_correction
+        z = z_physics + z_correction
+    else:
+        x = x_physics
+        z = z_physics
+
+    # Clip to home plate (y >= 0)
     mask = y >= 0
     x = x[mask]
     y = y[mask]
@@ -342,8 +379,8 @@ def visualize_pitch_trajectories_3d(
         ),
         scene=dict(
             xaxis=dict(
-                title='Horizontal Position (ft)',
-                range=[-3, 3],
+                title='← 3B          Horizontal Position (ft)          1B →',
+                range=[-3, 3],  # Standard: negative x (3B) on left, positive x (1B) on right
                 showgrid=True,
                 gridcolor='lightgray',
                 zeroline=True,
