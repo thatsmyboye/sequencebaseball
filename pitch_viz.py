@@ -379,8 +379,8 @@ def visualize_pitch_trajectories_3d(
         ),
         scene=dict(
             xaxis=dict(
-                title='← 3B          Horizontal Position (ft)          1B →',
-                range=[-3, 3],  # Standard: negative x (3B) on left, positive x (1B) on right
+                title='← 1B          Horizontal Position (ft)          3B →',
+                range=[3, -3],  # Catcher's view: 1B on left (positive x), 3B on right (negative x)
                 showgrid=True,
                 gridcolor='lightgray',
                 zeroline=True,
