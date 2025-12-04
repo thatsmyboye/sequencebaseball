@@ -304,6 +304,96 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Season/Date Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .filter-bar.hidden {
+            display: none;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-item label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .filter-select, .filter-date {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-select:hover, .filter-date:hover {
+            border-color: var(--accent-purple);
+        }
+
+        .filter-select:focus, .filter-date:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 2px rgba(163, 113, 247, 0.2);
+        }
+
+        .filter-date {
+            min-width: 140px;
+        }
+
+        .filter-date::-webkit-calendar-picker-indicator {
+            filter: invert(0.7);
+            cursor: pointer;
+        }
+
+        .filter-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border-color);
+            margin: 0 0.5rem;
+        }
+
+        .clear-dates-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clear-dates-btn:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .season-note {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
         /* Tunnel Panel */
         .tunnel-container {
             background: var(--bg-secondary);
@@ -359,6 +449,7 @@
         .pitch-toggle.curveball { --pitch-color: #58a6ff; }
         .pitch-toggle.splitter { --pitch-color: #db6d28; }
         .pitch-toggle.sinker { --pitch-color: #db6d28; }
+        .pitch-toggle.sweeper { --pitch-color: #a371f7; }
 
         .pitch-color-dot {
             width: 12px;
@@ -782,6 +873,11 @@
             .sequence-table th {
                 padding: 0.75rem 0.5rem;
             }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
@@ -822,6 +918,27 @@
     </nav>
 
     <main class="main-content">
+        <!-- Season/Date Filter Bar (shared across tabs) -->
+        <div class="filter-bar hidden" id="filter-bar">
+            <div class="filter-item">
+                <label for="season-select">Season:</label>
+                <select class="filter-select" id="season-select">
+                    <option value="">All Seasons</option>
+                </select>
+                <span class="season-note" id="season-note"></span>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-item">
+                <label for="start-date">From:</label>
+                <input type="date" class="filter-date" id="start-date">
+            </div>
+            <div class="filter-item">
+                <label for="end-date">To:</label>
+                <input type="date" class="filter-date" id="end-date">
+            </div>
+            <button class="clear-dates-btn" id="clear-dates-btn">Clear Dates</button>
+        </div>
+
         <!-- Sequences Tab -->
         <div id="sequences-panel" class="tab-panel active">
             <div class="sequences-container">
@@ -885,6 +1002,9 @@
         let currentPitcher = null;
         let currentBatterHand = '';
         let currentSequencePosition = 'any';
+        let currentSeason = null;
+        let currentStartDate = null;
+        let currentEndDate = null;
         let pitcherData = {};
         let pitcherList = [];
         let highlightedIndex = -1;
@@ -958,6 +1078,55 @@
             });
         }
 
+        // Populate season dropdown for selected pitcher
+        function populateSeasonDropdown() {
+            const select = document.getElementById('season-select');
+            const filterBar = document.getElementById('filter-bar');
+            
+            if (!currentPitcher) {
+                filterBar.classList.add('hidden');
+                return;
+            }
+
+            filterBar.classList.remove('hidden');
+            
+            const seasons = currentPitcher.available_seasons || [];
+            
+            // Build options (most recent first)
+            let optionsHTML = '<option value="">All Seasons</option>';
+            seasons.slice().sort((a, b) => b - a).forEach(season => {
+                optionsHTML += `<option value="${season}">${season}</option>`;
+            });
+            
+            select.innerHTML = optionsHTML;
+            
+            // Set default to most recent season
+            if (seasons.length > 0) {
+                const latestSeason = Math.max(...seasons);
+                select.value = latestSeason;
+                currentSeason = latestSeason;
+                updateSeasonNote();
+            }
+        }
+
+        // Update season note
+        async function updateSeasonNote() {
+            const noteEl = document.getElementById('season-note');
+            if (!currentPitcher || !currentSeason) {
+                noteEl.textContent = '';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/pitchers/${currentPitcher.id}/seasons`);
+                const data = await res.json();
+                const seasonInfo = data.available_seasons.find(s => s.season === currentSeason);
+                noteEl.textContent = seasonInfo?.note || '';
+            } catch {
+                noteEl.textContent = '';
+            }
+        }
+
         // Select a pitcher
         function selectPitcher(pitcherId) {
             currentPitcher = pitcherData[pitcherId];
@@ -965,16 +1134,30 @@
             input.value = `${currentPitcher.name} (${currentPitcher.team})`;
             document.getElementById('search-results').classList.remove('active');
             highlightedIndex = -1;
+            
+            // Reset filters
+            currentSeason = null;
+            currentStartDate = null;
+            currentEndDate = null;
+            document.getElementById('start-date').value = '';
+            document.getElementById('end-date').value = '';
+            
+            populateSeasonDropdown();
             loadAllData();
         }
 
         // Clear pitcher selection
         function clearPitcherSelection() {
             currentPitcher = null;
+            currentSeason = null;
+            currentStartDate = null;
+            currentEndDate = null;
+            
             const input = document.getElementById('pitcher-search-input');
             input.value = '';
             input.focus();
             document.getElementById('search-results').classList.remove('active');
+            document.getElementById('filter-bar').classList.add('hidden');
             highlightedIndex = -1;
             
             // Reset all panels to empty state
@@ -1102,6 +1285,56 @@
                 });
             });
 
+            // Season select
+            document.getElementById('season-select').addEventListener('change', (e) => {
+                currentSeason = e.target.value ? parseInt(e.target.value) : null;
+                updateSeasonNote();
+                
+                // Update date range constraints based on season
+                const startDate = document.getElementById('start-date');
+                const endDate = document.getElementById('end-date');
+                
+                if (currentSeason) {
+                    startDate.min = `${currentSeason}-01-01`;
+                    startDate.max = `${currentSeason}-12-31`;
+                    endDate.min = `${currentSeason}-01-01`;
+                    endDate.max = `${currentSeason}-12-31`;
+                } else {
+                    startDate.min = '';
+                    startDate.max = '';
+                    endDate.min = '';
+                    endDate.max = '';
+                }
+                
+                // Clear date filters when changing season
+                startDate.value = '';
+                endDate.value = '';
+                currentStartDate = null;
+                currentEndDate = null;
+                
+                if (currentPitcher) loadAllData();
+            });
+
+            // Date pickers
+            document.getElementById('start-date').addEventListener('change', (e) => {
+                currentStartDate = e.target.value || null;
+                if (currentPitcher) loadAllData();
+            });
+
+            document.getElementById('end-date').addEventListener('change', (e) => {
+                currentEndDate = e.target.value || null;
+                if (currentPitcher) loadAllData();
+            });
+
+            // Clear dates button
+            document.getElementById('clear-dates-btn').addEventListener('click', () => {
+                document.getElementById('start-date').value = '';
+                document.getElementById('end-date').value = '';
+                currentStartDate = null;
+                currentEndDate = null;
+                if (currentPitcher) loadAllData();
+            });
+
             // Load tunnel button
             document.getElementById('load-tunnel-btn').addEventListener('click', loadTunnel);
         }
@@ -1121,16 +1354,23 @@
             content.innerHTML = `<div class="loading"><div class="loading-spinner"></div>Loading sequences...</div>`;
 
             try {
+                const body = {
+                    pitcher_id: parseInt(currentPitcher.id),
+                    batter_hand: currentBatterHand || null,
+                    min_sample_size: 10,
+                    top_n: 15,
+                    sequence_position: currentSequencePosition
+                };
+                
+                // Add season/date filters
+                if (currentSeason) body.season = currentSeason;
+                if (currentStartDate) body.start_date = currentStartDate;
+                if (currentEndDate) body.end_date = currentEndDate;
+
                 const res = await fetch(`${API_BASE}/visualizations/sequences`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        pitcher_id: parseInt(currentPitcher.id),
-                        batter_hand: currentBatterHand || null,
-                        min_sample_size: 10,
-                        top_n: 15,
-                        sequence_position: currentSequencePosition
-                    })
+                    body: JSON.stringify(body)
                 });
 
                 const data = await res.json();
@@ -1206,13 +1446,21 @@
 
             tableHTML += `</tbody></table>`;
             
-            // Add footnote with data citation and methodology
+            // Add footnote with data citation, date range, and methodology
+            const dateInfo = data.date_range 
+                ? `<span class="footnote-value">${data.date_range.start} to ${data.date_range.end}</span>`
+                : '<span class="footnote-value">All available data</span>';
+            
             tableHTML += `
                 <div class="sequence-footnote">
                     <div class="footnote-content">
                         <div class="footnote-item">
                             <span class="footnote-label">Data:</span>
                             <span class="footnote-value"><a href="https://baseballsavant.mlb.com" target="_blank" rel="noopener">Statcast via Baseball Savant</a></span>
+                        </div>
+                        <div class="footnote-item">
+                            <span class="footnote-label">Period:</span>
+                            ${dateInfo}
                         </div>
                         <div class="footnote-item">
                             <span class="footnote-label">Score:</span>
@@ -1285,7 +1533,8 @@
                 'Changeup': 'changeup',
                 'Curveball': 'curveball',
                 'Splitter': 'splitter',
-                'Sinker': 'sinker'
+                'Sinker': 'sinker',
+                'Sweeper': 'sweeper'
             };
 
             container.innerHTML = pitchTypes.map(pt => {
@@ -1316,15 +1565,22 @@
             frame.srcdoc = `<div style='display:flex;align-items:center;justify-content:center;height:100%;color:#8b949e;font-family:sans-serif;'><div style='text-align:center;'><div style='font-size:2rem;margin-bottom:1rem;'>⏳</div>Loading 3D visualization...</div></div>`;
 
             try {
+                const body = {
+                    pitcher_id: parseInt(currentPitcher.id),
+                    pitch_types: selectedPitches,
+                    batter_hand: currentBatterHand || null,
+                    max_pitches_per_type: 30
+                };
+                
+                // Add season/date filters
+                if (currentSeason) body.season = currentSeason;
+                if (currentStartDate) body.start_date = currentStartDate;
+                if (currentEndDate) body.end_date = currentEndDate;
+
                 const res = await fetch(`${API_BASE}/visualizations/tunnel`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        pitcher_id: parseInt(currentPitcher.id),
-                        pitch_types: selectedPitches,
-                        batter_hand: currentBatterHand || null,
-                        max_pitches_per_type: 30
-                    })
+                    body: JSON.stringify(body)
                 });
 
                 if (!res.ok) throw new Error('Failed to load tunnel');
@@ -1345,7 +1601,14 @@
             content.innerHTML = `<div class="loading"><div class="loading-spinner"></div>Loading summary...</div>`;
 
             try {
-                const res = await fetch(`${API_BASE}/data/${currentPitcher.id}/summary`);
+                let url = `${API_BASE}/data/${currentPitcher.id}/summary`;
+                const params = new URLSearchParams();
+                if (currentSeason) params.append('season', currentSeason);
+                if (currentStartDate) params.append('start_date', currentStartDate);
+                if (currentEndDate) params.append('end_date', currentEndDate);
+                if (params.toString()) url += `?${params.toString()}`;
+
+                const res = await fetch(url);
                 const data = await res.json();
                 renderSummary(data);
             } catch (err) {
@@ -1359,11 +1622,17 @@
             const totalPitches = data.total_pitches;
             const arsenal = data.pitch_arsenal || {};
             const velocities = data.avg_velocity_by_pitch || {};
+            const availableSeasons = data.available_seasons || [];
 
             // Sort arsenal by usage
             const sortedArsenal = Object.entries(arsenal)
                 .sort((a, b) => b[1] - a[1]);
             const maxUsage = sortedArsenal.length > 0 ? sortedArsenal[0][1] : 1;
+
+            // Format seasons available
+            const seasonsDisplay = availableSeasons.length > 0 
+                ? `${Math.min(...availableSeasons)} - ${Math.max(...availableSeasons)} (${availableSeasons.length} seasons)`
+                : 'Unknown';
 
             const html = `
                 <div class="summary-grid">
@@ -1387,11 +1656,11 @@
 
                     <div class="stat-card">
                         <div class="stat-card-header">
-                            <span class="stat-card-title">Pitch Types</span>
-                            <span class="stat-card-icon">🎯</span>
+                            <span class="stat-card-title">Data Available</span>
+                            <span class="stat-card-icon">📅</span>
                         </div>
-                        <div class="stat-card-value">${Object.keys(arsenal).length}</div>
-                        <div class="stat-card-sub">Different pitch types thrown</div>
+                        <div class="stat-card-value" style="font-size: 1.5rem;">${seasonsDisplay}</div>
+                        <div class="stat-card-sub">Statcast era (2015+)</div>
                     </div>
 
                     <div class="stat-card" style="grid-column: span 2;">
@@ -1428,4 +1697,3 @@
     </script>
 </body>
 </html>
-

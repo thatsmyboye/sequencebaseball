@@ -4,7 +4,6 @@ FastAPI endpoints for pitch sequencing analysis and visualizations
 
 Run with: uvicorn api.main:app --reload
 API docs: http://localhost:8000/docs
-Frontend: http://localhost:8000/app
 """
 
 import sys
@@ -15,8 +14,7 @@ import io
 
 from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 import pandas as pd
 
@@ -38,7 +36,7 @@ from sequence_visualizations import (
 app = FastAPI(
     title="Sequence Baseball API",
     description="REST API for MLB pitch sequencing analysis and visualizations",
-    version="0.1.0",
+    version="0.2.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -53,14 +51,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Static files directory
-STATIC_DIR = Path(__file__).parent / "static"
-
 # =============================================================================
 # DATA CONFIGURATION
 # =============================================================================
 
-# Pitcher registry - maps pitcher info to data files
+# Pitcher registry with multi-season support
+# Each pitcher has available_seasons list with years they pitched in MLB (Statcast era: 2015+)
 PITCHER_REGISTRY = {
     669373: {
         "name": "Tarik Skubal",
@@ -68,8 +64,17 @@ PITCHER_REGISTRY = {
         "team_full": "Detroit Tigers",
         "position": "SP",
         "throws": "L",
-        "data_file": "skubal_statcast_2024.csv",
-        "pitch_types": ["4-Seam Fastball", "Slider", "Changeup", "Curveball"]
+        "data_file": "skubal_statcast_all.csv",  # Multi-season file
+        "data_file_2024": "skubal_statcast_2024.csv",  # Legacy single-season
+        "pitch_types": ["4-Seam Fastball", "Slider", "Changeup"],
+        "available_seasons": [2020, 2021, 2022, 2023, 2024],
+        "season_notes": {
+            2020: "Rookie debut (shortened COVID season)",
+            2021: "First full season",
+            2022: "Breakout year",
+            2023: "Limited due to injury",
+            2024: "Cy Young season"
+        }
     },
     650556: {
         "name": "Jhoan Duran",
@@ -77,8 +82,15 @@ PITCHER_REGISTRY = {
         "team_full": "Minnesota Twins",
         "position": "RP",
         "throws": "R",
-        "data_file": "duran_statcast_2024.csv",
-        "pitch_types": ["4-Seam Fastball", "Splitter", "Slider", "Sinker"]
+        "data_file": "duran_statcast_all.csv",
+        "data_file_2024": "duran_statcast_2024.csv",
+        "pitch_types": ["4-Seam Fastball", "Splitter", "Slider"],
+        "available_seasons": [2022, 2023, 2024],
+        "season_notes": {
+            2022: "Rookie season",
+            2023: "All-Star breakout",
+            2024: "Elite closer"
+        }
     },
     554430: {
         "name": "Zack Wheeler",
@@ -86,8 +98,21 @@ PITCHER_REGISTRY = {
         "team_full": "Philadelphia Phillies",
         "position": "SP",
         "throws": "R",
-        "data_file": "wheeler_statcast_2024.csv",
-        "pitch_types": ["4-Seam Fastball", "Slider", "Curveball", "Changeup", "Sinker"]
+        "data_file": "wheeler_statcast_all.csv",
+        "data_file_2024": "wheeler_statcast_2024.csv",
+        "pitch_types": ["4-Seam Fastball", "Slider", "Curveball", "Changeup", "Sinker"],
+        "available_seasons": [2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+        "season_notes": {
+            2015: "With Mets",
+            2017: "Return from injury",
+            2018: "Strong comeback",
+            2019: "Career year with Mets",
+            2020: "First year with Phillies (COVID)",
+            2021: "Cy Young runner-up",
+            2022: "World Series run",
+            2023: "Consistent ace",
+            2024: "Elite performance"
+        }
     },
     650911: {
         "name": "Cristopher Sanchez",
@@ -95,17 +120,34 @@ PITCHER_REGISTRY = {
         "team_full": "Philadelphia Phillies",
         "position": "SP",
         "throws": "L",
-        "data_file": "sanchez_statcast_2024.csv",
-        "pitch_types": ["Sinker", "Changeup", "Sweeper", "4-Seam Fastball"]
+        "data_file": "sanchez_statcast_all.csv",
+        "data_file_2024": "sanchez_statcast_2024.csv",
+        "pitch_types": ["Sinker", "Changeup", "Sweeper", "4-Seam Fastball"],
+        "available_seasons": [2021, 2022, 2023, 2024],
+        "season_notes": {
+            2021: "Brief MLB debut",
+            2022: "Spot starts/long relief",
+            2023: "Rotation spot",
+            2024: "Established starter"
+        }
     },
-    # Add more pitchers as data becomes available
 }
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
 
-def load_pitcher_data(pitcher_id: int) -> pd.DataFrame:
-    """Load pitcher data from CSV file"""
+def load_pitcher_data(pitcher_id: int, season: Optional[int] = None,
+                      start_date: Optional[str] = None,
+                      end_date: Optional[str] = None) -> pd.DataFrame:
+    """
+    Load pitcher data from CSV file with optional season/date filtering.
+    
+    Parameters:
+    - pitcher_id: MLB pitcher ID
+    - season: Optional season year to filter (e.g., 2024)
+    - start_date: Optional start date (YYYY-MM-DD)
+    - end_date: Optional end date (YYYY-MM-DD)
+    """
     if pitcher_id not in PITCHER_REGISTRY:
         raise HTTPException(
             status_code=404,
@@ -113,10 +155,13 @@ def load_pitcher_data(pitcher_id: int) -> pd.DataFrame:
         )
     
     pitcher_info = PITCHER_REGISTRY[pitcher_id]
+    
+    # Try multi-season file first, fall back to 2024-only file
     data_path = DATA_DIR / pitcher_info["data_file"]
+    if not data_path.exists():
+        data_path = DATA_DIR / pitcher_info.get("data_file_2024", pitcher_info["data_file"])
     
     if not data_path.exists():
-        # Provide helpful debug info for serverless environments
         raise HTTPException(
             status_code=404,
             detail=f"Data file not found for {pitcher_info['name']}. "
@@ -125,7 +170,39 @@ def load_pitcher_data(pitcher_id: int) -> pd.DataFrame:
                    f"Files in DATA_DIR: {list(DATA_DIR.glob('*')) if DATA_DIR.exists() else 'N/A'}"
         )
     
-    return pd.read_csv(data_path)
+    df = pd.read_csv(data_path)
+    
+    # Filter by season if specified
+    if season is not None:
+        if 'season' in df.columns:
+            df = df[df['season'] == season]
+        else:
+            # Fall back to extracting year from game_date
+            df['game_date'] = pd.to_datetime(df['game_date'])
+            df = df[df['game_date'].dt.year == season]
+        
+        if len(df) == 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No data found for {pitcher_info['name']} in season {season}. "
+                       f"Available seasons: {pitcher_info.get('available_seasons', ['unknown'])}"
+            )
+    
+    # Filter by date range if specified
+    if start_date or end_date:
+        df['game_date'] = pd.to_datetime(df['game_date'])
+        if start_date:
+            df = df[df['game_date'] >= start_date]
+        if end_date:
+            df = df[df['game_date'] <= end_date]
+        
+        if len(df) == 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No data found for the specified date range"
+            )
+    
+    return df
 
 
 # =============================================================================
@@ -146,10 +223,9 @@ class ChartType(str, Enum):
     small_multiples = "small_multiples"
 
 
-class SequencePosition(str, Enum):
-    any = "any"           # All consecutive sequences (default)
-    start = "start"       # First 2 pitches of PA only
-    end = "end"           # Last 2 pitches of PA only
+class SeasonInfo(BaseModel):
+    season: int
+    note: Optional[str] = None
 
 
 class PitcherInfo(BaseModel):
@@ -160,6 +236,13 @@ class PitcherInfo(BaseModel):
     position: str
     throws: str
     pitch_types: List[str]
+    available_seasons: List[int] = []
+
+
+class PitcherSeasonsResponse(BaseModel):
+    pitcher_id: int
+    pitcher_name: str
+    available_seasons: List[SeasonInfo]
 
 
 class TunnelRequest(BaseModel):
@@ -167,6 +250,9 @@ class TunnelRequest(BaseModel):
     pitch_types: List[str] = Field(..., description="List of pitch types to visualize")
     batter_hand: Optional[BatterHand] = Field(None, description="Filter by batter handedness")
     max_pitches_per_type: int = Field(30, ge=5, le=100, description="Max pitches per type")
+    season: Optional[int] = Field(None, ge=2015, le=2024, description="Season year (2015-2024)")
+    start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
 
 
 class SequenceRequest(BaseModel):
@@ -175,7 +261,10 @@ class SequenceRequest(BaseModel):
     min_sample_size: int = Field(10, ge=1, le=100, description="Minimum sample size")
     chart_type: ChartType = Field(ChartType.composite_score, description="Visualization type")
     top_n: int = Field(10, ge=3, le=20, description="Number of top sequences")
-    sequence_position: SequencePosition = Field(SequencePosition.any, description="Position filter: any (all sequences), start (first 2 pitches), end (last 2 pitches)")
+    sequence_position: str = Field("any", description="Sequence position: 'any', 'start', or 'end'")
+    season: Optional[int] = Field(None, ge=2015, le=2024, description="Season year (2015-2024)")
+    start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
 
 
 class CompositeScoreRequest(BaseModel):
@@ -196,6 +285,8 @@ class SequenceData(BaseModel):
 class SequenceAnalysisResponse(BaseModel):
     pitcher_name: str
     batter_hand: Optional[str]
+    season: Optional[int] = None
+    date_range: Optional[dict] = None
     sequences: List[SequenceData]
     total_sequences: int
     message: Optional[str] = None
@@ -207,7 +298,9 @@ class TableRequest(BaseModel):
     batter_hand: Optional[BatterHand] = Field(None, description="Filter by batter handedness")
     min_sample_size: int = Field(10, ge=1, le=100, description="Minimum sample size")
     top_n: int = Field(10, ge=3, le=20, description="Number of top sequences")
-    sequence_position: SequencePosition = Field(SequencePosition.any, description="Position filter: any (all sequences), start (first 2 pitches), end (last 2 pitches)")
+    season: Optional[int] = Field(None, ge=2015, le=2024, description="Season year (2015-2024)")
+    start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
 
 
 # =============================================================================
@@ -220,9 +313,9 @@ def read_root():
     return {
         "status": "ok",
         "api": "Sequence Baseball API",
-        "version": "0.1.0",
-        "docs": "/docs",
-        "app": "/app"
+        "version": "0.2.0",
+        "features": ["multi-season support", "date range filtering"],
+        "docs": "/docs"
     }
 
 
@@ -232,30 +325,24 @@ def health_check():
     return {"status": "healthy", "service": "sequence-baseball-api"}
 
 
-@app.get("/app", response_class=HTMLResponse, tags=["Frontend"])
-def serve_frontend():
-    """
-    Serve the interactive web application
-    
-    This is the main user interface for exploring pitch sequencing data.
-    """
-    index_path = STATIC_DIR / "index.html"
-    if not index_path.exists():
-        raise HTTPException(status_code=404, detail="Frontend not found")
-    
-    with open(index_path, 'r', encoding='utf-8') as f:
-        return HTMLResponse(content=f.read())
-
-
 @app.get("/pitchers", response_model=List[PitcherInfo], tags=["Pitchers"])
 def list_pitchers():
     """
     List all available pitchers with their data
     
-    Returns pitcher ID, name, team, and available pitch types.
+    Returns pitcher ID, name, team, available pitch types, and available seasons.
     """
     return [
-        PitcherInfo(id=pid, **{k: v for k, v in info.items() if k != "data_file"})
+        PitcherInfo(
+            id=pid,
+            name=info["name"],
+            team=info["team"],
+            team_full=info["team_full"],
+            position=info["position"],
+            throws=info["throws"],
+            pitch_types=info["pitch_types"],
+            available_seasons=info.get("available_seasons", [])
+        )
         for pid, info in PITCHER_REGISTRY.items()
     ]
 
@@ -267,7 +354,40 @@ def get_pitcher(pitcher_id: int):
         raise HTTPException(status_code=404, detail=f"Pitcher {pitcher_id} not found")
     
     info = PITCHER_REGISTRY[pitcher_id]
-    return PitcherInfo(id=pitcher_id, **{k: v for k, v in info.items() if k != "data_file"})
+    return PitcherInfo(
+        id=pitcher_id,
+        name=info["name"],
+        team=info["team"],
+        team_full=info["team_full"],
+        position=info["position"],
+        throws=info["throws"],
+        pitch_types=info["pitch_types"],
+        available_seasons=info.get("available_seasons", [])
+    )
+
+
+@app.get("/pitchers/{pitcher_id}/seasons", response_model=PitcherSeasonsResponse, tags=["Pitchers"])
+def get_pitcher_seasons(pitcher_id: int):
+    """
+    Get available seasons for a pitcher with metadata.
+    
+    Returns list of seasons where the pitcher has MLB data (Statcast era: 2015+).
+    Seasons where the pitcher did not pitch are not included.
+    """
+    if pitcher_id not in PITCHER_REGISTRY:
+        raise HTTPException(status_code=404, detail=f"Pitcher {pitcher_id} not found")
+    
+    info = PITCHER_REGISTRY[pitcher_id]
+    season_notes = info.get("season_notes", {})
+    
+    return PitcherSeasonsResponse(
+        pitcher_id=pitcher_id,
+        pitcher_name=info["name"],
+        available_seasons=[
+            SeasonInfo(season=s, note=season_notes.get(s))
+            for s in sorted(info.get("available_seasons", []), reverse=True)
+        ]
+    )
 
 
 @app.get("/pitchers/{pitcher_id}/pitch-types", tags=["Pitchers"])
@@ -303,9 +423,18 @@ def generate_tunnel_visualization(request: TunnelRequest):
     
     Returns interactive Plotly HTML that can be embedded in a webpage.
     Shows pitch trajectories from release point to home plate.
+    
+    Supports filtering by:
+    - season: Single season year (2015-2024)
+    - start_date/end_date: Date range within a season (YYYY-MM-DD)
     """
     try:
-        df = load_pitcher_data(request.pitcher_id)
+        df = load_pitcher_data(
+            request.pitcher_id,
+            season=request.season,
+            start_date=request.start_date,
+            end_date=request.end_date
+        )
         pitcher_info = PITCHER_REGISTRY[request.pitcher_id]
         
         # Validate pitch types
@@ -317,10 +446,19 @@ def generate_tunnel_visualization(request: TunnelRequest):
                 detail=f"Invalid pitch types: {invalid_types}. Available: {available_types}"
             )
         
+        # Build title with season/date info
+        title_parts = [pitcher_info["name"]]
+        if request.season:
+            title_parts.append(f"({request.season})")
+        elif request.start_date or request.end_date:
+            date_str = f"{request.start_date or 'start'} to {request.end_date or 'end'}"
+            title_parts.append(f"({date_str})")
+        title = " ".join(title_parts)
+        
         # Generate visualization
         fig = visualize_pitch_trajectories_3d(
             df=df,
-            pitcher_name=pitcher_info["name"],
+            pitcher_name=title,
             pitch_types=request.pitch_types,
             batter_hand=request.batter_hand.value if request.batter_hand else None,
             max_pitches_per_type=request.max_pitches_per_type,
@@ -344,32 +482,51 @@ def generate_sequence_analysis(request: SequenceRequest):
     
     Returns sequence data and optionally a visualization.
     Analyzes which pitch sequences are most effective.
+    
+    Supports filtering by:
+    - season: Single season year (2015-2024)
+    - start_date/end_date: Date range within a season (YYYY-MM-DD)
+    - sequence_position: 'any', 'start' (first 2 pitches), or 'end' (last 2 pitches)
     """
     try:
-        df = load_pitcher_data(request.pitcher_id)
+        df = load_pitcher_data(
+            request.pitcher_id,
+            season=request.season,
+            start_date=request.start_date,
+            end_date=request.end_date
+        )
         pitcher_info = PITCHER_REGISTRY[request.pitcher_id]
         
         batter_hand = request.batter_hand.value if request.batter_hand else None
         
-        # Analyze sequences
-        sequence_position = request.sequence_position.value if request.sequence_position else 'any'
+        # Analyze sequences with position filter
         seq_df = analyze_pitch_sequences(
             df=df,
             pitcher_name=pitcher_info["name"],
             batter_hand=batter_hand,
             min_sample_size=request.min_sample_size,
             success_metric='overall',
-            sequence_position=sequence_position
+            sequence_position=request.sequence_position
         )
         
         if len(seq_df) == 0:
             return SequenceAnalysisResponse(
                 pitcher_name=pitcher_info["name"],
                 batter_hand=batter_hand,
+                season=request.season,
                 sequences=[],
                 total_sequences=0,
                 message="No sequences found with specified criteria"
             )
+        
+        # Get date range from filtered data
+        date_range = None
+        if 'game_date' in df.columns:
+            df['game_date'] = pd.to_datetime(df['game_date'])
+            date_range = {
+                "start": str(df['game_date'].min().date()),
+                "end": str(df['game_date'].max().date())
+            }
         
         # Convert to response format
         sequences = [
@@ -387,6 +544,8 @@ def generate_sequence_analysis(request: SequenceRequest):
         return SequenceAnalysisResponse(
             pitcher_name=pitcher_info["name"],
             batter_hand=batter_hand,
+            season=request.season,
+            date_range=date_range,
             sequences=sequences,
             total_sequences=len(seq_df)
         )
@@ -409,11 +568,15 @@ def generate_sequence_chart(
     For PNG chart images, use /visualizations/sequences/chart-image instead.
     """
     try:
-        df = load_pitcher_data(request.pitcher_id)
+        df = load_pitcher_data(
+            request.pitcher_id,
+            season=request.season,
+            start_date=request.start_date,
+            end_date=request.end_date
+        )
         pitcher_info = PITCHER_REGISTRY[request.pitcher_id]
         
         batter_hand = request.batter_hand.value if request.batter_hand else None
-        sequence_position = request.sequence_position.value if request.sequence_position else 'any'
         
         # Analyze sequences
         seq_df = analyze_pitch_sequences(
@@ -421,8 +584,7 @@ def generate_sequence_chart(
             pitcher_name=pitcher_info["name"],
             batter_hand=batter_hand,
             min_sample_size=request.min_sample_size,
-            success_metric='overall',
-            sequence_position=sequence_position
+            success_metric='overall'
         )
         
         if len(seq_df) == 0:
@@ -470,11 +632,15 @@ def generate_sequence_chart_image(
     import base64
     
     try:
-        df = load_pitcher_data(request.pitcher_id)
+        df = load_pitcher_data(
+            request.pitcher_id,
+            season=request.season,
+            start_date=request.start_date,
+            end_date=request.end_date
+        )
         pitcher_info = PITCHER_REGISTRY[request.pitcher_id]
         
         batter_hand = request.batter_hand.value if request.batter_hand else None
-        sequence_position = request.sequence_position.value if request.sequence_position else 'any'
         
         # Analyze sequences
         seq_df = analyze_pitch_sequences(
@@ -482,8 +648,7 @@ def generate_sequence_chart_image(
             pitcher_name=pitcher_info["name"],
             batter_hand=batter_hand,
             min_sample_size=request.min_sample_size,
-            success_metric='overall',
-            sequence_position=sequence_position
+            success_metric='overall'
         )
         
         if len(seq_df) == 0:
@@ -526,6 +691,7 @@ def generate_sequence_chart_image(
             "pitcher_name": pitcher_info["name"],
             "chart_type": request.chart_type.value,
             "batter_hand": batter_hand,
+            "season": request.season,
             "image_format": "png",
             "image_data": image_base64
         }
@@ -541,10 +707,15 @@ def generate_sequence_chart_image(
 # =============================================================================
 
 @app.get("/data/{pitcher_id}/summary", tags=["Data"])
-def get_pitcher_summary(pitcher_id: int):
-    """Get summary statistics for a pitcher's data"""
+def get_pitcher_summary(
+    pitcher_id: int,
+    season: Optional[int] = Query(None, ge=2015, le=2024, description="Season year"),
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)")
+):
+    """Get summary statistics for a pitcher's data with optional season/date filtering"""
     try:
-        df = load_pitcher_data(pitcher_id)
+        df = load_pitcher_data(pitcher_id, season=season, start_date=start_date, end_date=end_date)
         pitcher_info = PITCHER_REGISTRY[pitcher_id]
         
         # Calculate summary stats
@@ -558,17 +729,22 @@ def get_pitcher_summary(pitcher_id: int):
         whiffs = df[df['description'] == 'swinging_strike']
         whiff_rate = round(len(whiffs) / len(swings) * 100, 1) if len(swings) > 0 else 0
         
+        # Get date range
+        df['game_date'] = pd.to_datetime(df['game_date'])
+        
         return {
             "pitcher_id": pitcher_id,
             "pitcher_name": pitcher_info["name"],
             "team": pitcher_info["team"],
+            "season": season,
             "total_pitches": total_pitches,
             "pitch_arsenal": pitch_counts,
             "avg_velocity_by_pitch": avg_velo_by_pitch,
             "overall_whiff_rate": whiff_rate,
+            "available_seasons": pitcher_info.get("available_seasons", []),
             "date_range": {
-                "start": str(df['game_date'].min()),
-                "end": str(df['game_date'].max())
+                "start": str(df['game_date'].min().date()),
+                "end": str(df['game_date'].max().date())
             }
         }
     
@@ -579,10 +755,13 @@ def get_pitcher_summary(pitcher_id: int):
 
 
 @app.get("/data/{pitcher_id}/movement", tags=["Data"])
-def get_movement_profile(pitcher_id: int):
+def get_movement_profile(
+    pitcher_id: int,
+    season: Optional[int] = Query(None, ge=2015, le=2024, description="Season year")
+):
     """Get pitch movement profile data for visualization"""
     try:
-        df = load_pitcher_data(pitcher_id)
+        df = load_pitcher_data(pitcher_id, season=season)
         pitcher_info = PITCHER_REGISTRY[pitcher_id]
         
         # Calculate movement stats by pitch type
@@ -599,6 +778,7 @@ def get_movement_profile(pitcher_id: int):
         return {
             "pitcher_id": pitcher_id,
             "pitcher_name": pitcher_info["name"],
+            "season": season,
             "movement": movement_data.to_dict(orient='records')
         }
     
@@ -620,17 +800,19 @@ async def startup_event():
     print("="*60)
     
     for pitcher_id, info in PITCHER_REGISTRY.items():
+        # Check for multi-season file first
         data_path = DATA_DIR / info["data_file"]
-        status = "OK" if data_path.exists() else "MISSING"
-        print(f"  [{status}] {info['name']} ({pitcher_id}): {info['data_file']}")
-    
-    # Check static files
-    static_status = "OK" if (STATIC_DIR / "index.html").exists() else "MISSING"
-    print(f"  [{static_status}] Frontend: api/static/index.html")
+        if data_path.exists():
+            status = "OK (multi-season)"
+        else:
+            # Fall back to 2024-only file
+            data_path = DATA_DIR / info.get("data_file_2024", info["data_file"])
+            status = "OK (2024 only)" if data_path.exists() else "MISSING"
+        
+        seasons_str = f"[{min(info.get('available_seasons', []))} - {max(info.get('available_seasons', []))}]" if info.get('available_seasons') else "[unknown]"
+        print(f"  [{status}] {info['name']} ({pitcher_id}): {seasons_str}")
     
     print("="*60)
-    print("🎯 Web App:       http://localhost:8000/app")
-    print("📚 API Docs:      http://localhost:8000/docs")
-    print("🔧 Health Check:  http://localhost:8000/health")
+    print("API ready at http://localhost:8000")
+    print("Interactive docs at http://localhost:8000/docs")
     print("="*60 + "\n")
-
