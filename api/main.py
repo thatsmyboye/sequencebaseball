@@ -4,6 +4,7 @@ FastAPI endpoints for pitch sequencing analysis and visualizations
 
 Run with: uvicorn api.main:app --reload
 API docs: http://localhost:8000/docs
+Frontend: http://localhost:8000/app
 """
 
 import sys
@@ -14,7 +15,8 @@ import io
 
 from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import pandas as pd
 
@@ -50,6 +52,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Static files directory
+STATIC_DIR = Path(__file__).parent / "static"
 
 # =============================================================================
 # DATA CONFIGURATION
@@ -190,7 +195,8 @@ def read_root():
         "status": "ok",
         "api": "Sequence Baseball API",
         "version": "0.1.0",
-        "docs": "/docs"
+        "docs": "/docs",
+        "app": "/app"
     }
 
 
@@ -198,6 +204,21 @@ def read_root():
 def health_check():
     """Health check endpoint for Railway/container orchestration"""
     return {"status": "healthy", "service": "sequence-baseball-api"}
+
+
+@app.get("/app", response_class=HTMLResponse, tags=["Frontend"])
+def serve_frontend():
+    """
+    Serve the interactive web application
+    
+    This is the main user interface for exploring pitch sequencing data.
+    """
+    index_path = STATIC_DIR / "index.html"
+    if not index_path.exists():
+        raise HTTPException(status_code=404, detail="Frontend not found")
+    
+    with open(index_path, 'r', encoding='utf-8') as f:
+        return HTMLResponse(content=f.read())
 
 
 @app.get("/pitchers", response_model=List[PitcherInfo], tags=["Pitchers"])
@@ -571,8 +592,13 @@ async def startup_event():
         status = "OK" if data_path.exists() else "MISSING"
         print(f"  [{status}] {info['name']} ({pitcher_id}): {info['data_file']}")
     
+    # Check static files
+    static_status = "OK" if (STATIC_DIR / "index.html").exists() else "MISSING"
+    print(f"  [{static_status}] Frontend: api/static/index.html")
+    
     print("="*60)
-    print("API ready at http://localhost:8000")
-    print("Interactive docs at http://localhost:8000/docs")
+    print("🎯 Web App:       http://localhost:8000/app")
+    print("📚 API Docs:      http://localhost:8000/docs")
+    print("🔧 Health Check:  http://localhost:8000/health")
     print("="*60 + "\n")
 
