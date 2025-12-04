@@ -14,7 +14,8 @@ import io
 
 from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import pandas as pd
 
@@ -50,6 +51,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Static files directory
+STATIC_DIR = Path(__file__).parent / "static"
 
 # =============================================================================
 # DATA CONFIGURATION
@@ -307,8 +311,17 @@ class TableRequest(BaseModel):
 # API ENDPOINTS
 # =============================================================================
 
-@app.get("/", tags=["Health"])
+@app.get("/", response_class=HTMLResponse, tags=["UI"])
 def read_root():
+    """Serve the main web application"""
+    index_path = STATIC_DIR / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path, media_type="text/html")
+    return HTMLResponse("<h1>Sequence Baseball API</h1><p>Frontend not found. Visit <a href='/docs'>/docs</a> for API.</p>")
+
+
+@app.get("/api", tags=["Health"])
+def api_info():
     """API health check and version info"""
     return {
         "status": "ok",
