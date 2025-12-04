@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 np.random.seed(42)
 
-def generate_pitch_data(pitcher_name, pitcher_id, pitch_arsenal, num_pitches=2000):
+def generate_pitch_data(pitcher_name, pitcher_id, pitch_arsenal, throws='R', num_pitches=2000):
     """
     Generate realistic Statcast pitch data
 
@@ -16,6 +16,7 @@ def generate_pitch_data(pitcher_name, pitcher_id, pitch_arsenal, num_pitches=200
     - pitcher_name: str
     - pitcher_id: int (MLB ID)
     - pitch_arsenal: dict with pitch types and their characteristics
+    - throws: str, 'L' or 'R' for pitcher handedness
     - num_pitches: int, total pitches to generate
     """
 
@@ -113,7 +114,7 @@ def generate_pitch_data(pitcher_name, pitcher_id, pitch_arsenal, num_pitches=200
             'description': description,
             'zone': zone,
             'stand': stand,
-            'p_throws': 'L' if pitcher_name == 'Tarik Skubal' else 'R',
+            'p_throws': throws,
             'balls': balls,
             'strikes': strikes,
             'pfx_x': round(pfx_x, 2),
@@ -243,12 +244,139 @@ duran_arsenal = {
     }
 }
 
+# Zack Wheeler Arsenal (Phillies Ace)
+# Right-handed, elite four-pitch mix
+wheeler_arsenal = {
+    'FF': {  # 4-Seam Fastball
+        'name': '4-Seam Fastball',
+        'usage': 0.35,
+        'velo': 96.0,
+        'velo_std': 1.3,
+        'spin': 2350,
+        'spin_std': 100,
+        'horz_break': -7.5,  # Arm-side run (RHP)
+        'vert_break': 15.0,  # Rise
+        'release_x': 2.2,  # RHP releases from 1B side
+        'release_z': 5.9,
+        'spin_axis': 210
+    },
+    'SL': {  # Slider
+        'name': 'Slider',
+        'usage': 0.30,
+        'velo': 84.5,
+        'velo_std': 1.5,
+        'spin': 2700,
+        'spin_std': 120,
+        'horz_break': 1.0,  # Glove-side break
+        'vert_break': 2.5,  # Drop
+        'release_x': 2.1,
+        'release_z': 5.8,
+        'spin_axis': 50
+    },
+    'CU': {  # Curveball
+        'name': 'Curveball',
+        'usage': 0.15,
+        'velo': 79.0,
+        'velo_std': 1.5,
+        'spin': 2800,
+        'spin_std': 150,
+        'horz_break': 5.0,  # Glove-side
+        'vert_break': -8.0,  # Drop
+        'release_x': 2.0,
+        'release_z': 5.9,
+        'spin_axis': 30
+    },
+    'CH': {  # Changeup
+        'name': 'Changeup',
+        'usage': 0.10,
+        'velo': 88.0,
+        'velo_std': 1.2,
+        'spin': 1700,
+        'spin_std': 90,
+        'horz_break': -14.0,  # Arm-side fade
+        'vert_break': 4.0,  # Some drop
+        'release_x': 2.2,
+        'release_z': 5.8,
+        'spin_axis': 230
+    },
+    'SI': {  # Sinker
+        'name': 'Sinker',
+        'usage': 0.10,
+        'velo': 95.0,
+        'velo_std': 1.2,
+        'spin': 2100,
+        'spin_std': 100,
+        'horz_break': -15.0,  # Heavy arm-side run
+        'vert_break': 8.0,  # Less rise than 4-seam
+        'release_x': 2.2,
+        'release_z': 5.9,
+        'spin_axis': 225
+    }
+}
+
+# Cristopher Sanchez Arsenal (Phillies)
+# Left-handed, sinker-changeup dominant
+sanchez_arsenal = {
+    'SI': {  # Sinker (primary pitch)
+        'name': 'Sinker',
+        'usage': 0.45,
+        'velo': 93.5,
+        'velo_std': 1.2,
+        'spin': 2000,
+        'spin_std': 100,
+        'horz_break': 15.0,  # Arm-side run (LHP)
+        'vert_break': 7.0,  # Less rise, more sink
+        'release_x': -2.3,  # LHP releases from 3B side
+        'release_z': 5.5,
+        'spin_axis': 215
+    },
+    'CH': {  # Changeup (elite)
+        'name': 'Changeup',
+        'usage': 0.30,
+        'velo': 84.0,
+        'velo_std': 1.3,
+        'spin': 1550,
+        'spin_std': 80,
+        'horz_break': 14.0,  # Arm-side fade
+        'vert_break': 2.0,  # Drop
+        'release_x': -2.3,
+        'release_z': 5.5,
+        'spin_axis': 245
+    },
+    'SW': {  # Sweeper
+        'name': 'Sweeper',
+        'usage': 0.15,
+        'velo': 80.0,
+        'velo_std': 1.5,
+        'spin': 2600,
+        'spin_std': 120,
+        'horz_break': -5.0,  # Glove-side sweep
+        'vert_break': 0.0,  # Horizontal break
+        'release_x': -2.2,
+        'release_z': 5.6,
+        'spin_axis': 100
+    },
+    'FF': {  # 4-Seam Fastball
+        'name': '4-Seam Fastball',
+        'usage': 0.10,
+        'velo': 94.0,
+        'velo_std': 1.2,
+        'spin': 2200,
+        'spin_std': 100,
+        'horz_break': 7.0,  # Arm-side (LHP)
+        'vert_break': 14.0,  # Rise
+        'release_x': -2.3,
+        'release_z': 5.6,
+        'spin_axis': 200
+    }
+}
+
 print("="*80)
 print("GENERATING SAMPLE STATCAST DATA")
 print("="*80)
 
 print("\nGenerating Tarik Skubal data (2000 pitches)...")
-skubal_df = generate_pitch_data("Tarik Skubal", 669373, skubal_arsenal, 2000)
+skubal_df = generate_pitch_data("Tarik Skubal", 669373, skubal_arsenal, throws='L', num_pitches=2000)
 skubal_df.to_csv('data/skubal_statcast_2024.csv', index=False)
 print(f"✓ Saved: data/skubal_statcast_2024.csv")
 print(f"  Shape: {skubal_df.shape}")
@@ -256,12 +384,28 @@ print(f"  Date range: {skubal_df['game_date'].min()} to {skubal_df['game_date'].
 print(f"  Pitch types: {skubal_df['pitch_name'].value_counts().to_dict()}")
 
 print("\nGenerating Jhoan Duran data (1500 pitches)...")
-duran_df = generate_pitch_data("Jhoan Duran", 650556, duran_arsenal, 1500)
+duran_df = generate_pitch_data("Jhoan Duran", 650556, duran_arsenal, throws='R', num_pitches=1500)
 duran_df.to_csv('data/duran_statcast_2024.csv', index=False)
 print(f"✓ Saved: data/duran_statcast_2024.csv")
 print(f"  Shape: {duran_df.shape}")
 print(f"  Date range: {duran_df['game_date'].min()} to {duran_df['game_date'].max()}")
 print(f"  Pitch types: {duran_df['pitch_name'].value_counts().to_dict()}")
+
+print("\nGenerating Zack Wheeler data (2000 pitches)...")
+wheeler_df = generate_pitch_data("Zack Wheeler", 554430, wheeler_arsenal, throws='R', num_pitches=2000)
+wheeler_df.to_csv('data/wheeler_statcast_2024.csv', index=False)
+print(f"✓ Saved: data/wheeler_statcast_2024.csv")
+print(f"  Shape: {wheeler_df.shape}")
+print(f"  Date range: {wheeler_df['game_date'].min()} to {wheeler_df['game_date'].max()}")
+print(f"  Pitch types: {wheeler_df['pitch_name'].value_counts().to_dict()}")
+
+print("\nGenerating Cristopher Sanchez data (1800 pitches)...")
+sanchez_df = generate_pitch_data("Cristopher Sanchez", 650911, sanchez_arsenal, throws='L', num_pitches=1800)
+sanchez_df.to_csv('data/sanchez_statcast_2024.csv', index=False)
+print(f"✓ Saved: data/sanchez_statcast_2024.csv")
+print(f"  Shape: {sanchez_df.shape}")
+print(f"  Date range: {sanchez_df['game_date'].min()} to {sanchez_df['game_date'].max()}")
+print(f"  Pitch types: {sanchez_df['pitch_name'].value_counts().to_dict()}")
 
 print("\n" + "="*80)
 print("SAMPLE DATA GENERATION COMPLETE")

@@ -89,27 +89,157 @@
             flex-wrap: wrap;
         }
 
-        select {
+        /* Pitcher Search Autocomplete */
+        .pitcher-search {
+            position: relative;
+            min-width: 280px;
+        }
+
+        .pitcher-search-input {
+            width: 100%;
             background: var(--bg-tertiary);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
             padding: 0.6rem 1rem;
+            padding-right: 2.5rem;
             border-radius: 8px;
             font-family: inherit;
             font-size: 0.95rem;
-            cursor: pointer;
-            min-width: 180px;
             transition: all 0.2s;
         }
 
-        select:hover {
+        .pitcher-search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .pitcher-search-input:hover {
             border-color: var(--accent-purple);
         }
 
-        select:focus {
+        .pitcher-search-input:focus {
             outline: none;
             border-color: var(--accent-purple);
             box-shadow: 0 0 0 3px rgba(163, 113, 247, 0.2);
+        }
+
+        .pitcher-search-clear {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            font-size: 1.1rem;
+            line-height: 1;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .pitcher-search-input:not(:placeholder-shown) + .pitcher-search-clear {
+            opacity: 1;
+        }
+
+        .pitcher-search-clear:hover {
+            color: var(--text-primary);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 4px;
+            max-height: 320px;
+            overflow-y: auto;
+            z-index: 200;
+            display: none;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .search-result-item:hover,
+        .search-result-item.highlighted {
+            background: var(--bg-tertiary);
+        }
+
+        .search-result-item.selected {
+            background: rgba(163, 113, 247, 0.15);
+        }
+
+        .result-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .result-team {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .result-info {
+            margin-left: auto;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .result-position {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .result-throws {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .no-results {
+            padding: 1rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        /* Selected pitcher display */
+        .selected-pitcher {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, rgba(163, 113, 247, 0.15), rgba(88, 166, 255, 0.15));
+            border: 1px solid var(--accent-purple);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .selected-pitcher-name {
+            color: var(--text-primary);
+        }
+
+        .selected-pitcher-team {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
         }
 
         /* Tab Navigation */
@@ -663,9 +793,15 @@
                 <span class="logo-text">Sequence Baseball</span>
             </div>
             <div class="controls">
-                <select id="pitcher-select">
-                    <option value="">Select a pitcher...</option>
-                </select>
+                <div class="pitcher-search" id="pitcher-search">
+                    <input type="text" 
+                           class="pitcher-search-input" 
+                           id="pitcher-search-input"
+                           placeholder="Search pitchers..."
+                           autocomplete="off">
+                    <button class="pitcher-search-clear" id="pitcher-search-clear" type="button">×</button>
+                    <div class="search-results" id="search-results"></div>
+                </div>
             </div>
         </div>
     </header>
@@ -750,6 +886,8 @@
         let currentBatterHand = '';
         let currentSequencePosition = 'any';
         let pitcherData = {};
+        let pitcherList = [];
+        let highlightedIndex = -1;
 
         // API Base URL - detect if running locally or deployed
         const API_BASE = window.location.origin;
@@ -766,29 +904,170 @@
                 const res = await fetch(`${API_BASE}/pitchers`);
                 const pitchers = await res.json();
                 
-                const select = document.getElementById('pitcher-select');
-                pitchers.forEach(p => {
-                    const option = document.createElement('option');
-                    option.value = p.id;
-                    option.textContent = `${p.name} (${p.team})`;
-                    select.appendChild(option);
-                });
-
-                // Store pitcher data
+                // Store pitcher data in both formats
+                pitcherList = pitchers;
                 pitchers.forEach(p => pitcherData[p.id] = p);
             } catch (err) {
                 console.error('Failed to load pitchers:', err);
             }
         }
 
+        // Filter pitchers by search query
+        function filterPitchers(query) {
+            if (!query.trim()) return [];
+            
+            const lowerQuery = query.toLowerCase();
+            return pitcherList.filter(p => 
+                p.name.toLowerCase().includes(lowerQuery) ||
+                p.team.toLowerCase().includes(lowerQuery)
+            ).slice(0, 10); // Limit to 10 results
+        }
+
+        // Render search results
+        function renderSearchResults(pitchers) {
+            const resultsContainer = document.getElementById('search-results');
+            
+            if (pitchers.length === 0) {
+                resultsContainer.innerHTML = '<div class="no-results">No pitchers found</div>';
+                resultsContainer.classList.add('active');
+                return;
+            }
+
+            resultsContainer.innerHTML = pitchers.map((p, index) => `
+                <div class="search-result-item${index === highlightedIndex ? ' highlighted' : ''}${currentPitcher && currentPitcher.id === p.id ? ' selected' : ''}" 
+                     data-id="${p.id}" 
+                     data-index="${index}">
+                    <div>
+                        <span class="result-name">${p.name}</span>
+                        <span class="result-team">${p.team}</span>
+                    </div>
+                    <div class="result-info">
+                        <span class="result-position">${p.position}</span>
+                        <span class="result-throws">${p.throws}HP</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            resultsContainer.classList.add('active');
+
+            // Add click handlers to results
+            resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    selectPitcher(item.dataset.id);
+                });
+            });
+        }
+
+        // Select a pitcher
+        function selectPitcher(pitcherId) {
+            currentPitcher = pitcherData[pitcherId];
+            const input = document.getElementById('pitcher-search-input');
+            input.value = `${currentPitcher.name} (${currentPitcher.team})`;
+            document.getElementById('search-results').classList.remove('active');
+            highlightedIndex = -1;
+            loadAllData();
+        }
+
+        // Clear pitcher selection
+        function clearPitcherSelection() {
+            currentPitcher = null;
+            const input = document.getElementById('pitcher-search-input');
+            input.value = '';
+            input.focus();
+            document.getElementById('search-results').classList.remove('active');
+            highlightedIndex = -1;
+            
+            // Reset all panels to empty state
+            document.getElementById('sequences-content').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚾</div>
+                    <p>Select a pitcher to view sequence analysis</p>
+                </div>
+            `;
+            document.getElementById('summary-content').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📈</div>
+                    <p>Select a pitcher to view summary statistics</p>
+                </div>
+            `;
+            document.getElementById('pitch-toggles').innerHTML = '';
+            document.getElementById('tunnel-frame').srcdoc = "<div style='display:flex;align-items:center;justify-content:center;height:100%;color:#8b949e;font-family:sans-serif;'>Select pitch types and click Load Visualization</div>";
+        }
+
         // Setup event listeners
         function setupEventListeners() {
-            // Pitcher select
-            document.getElementById('pitcher-select').addEventListener('change', (e) => {
-                const pitcherId = e.target.value;
-                if (pitcherId) {
-                    currentPitcher = pitcherData[pitcherId];
-                    loadAllData();
+            const searchInput = document.getElementById('pitcher-search-input');
+            const searchResults = document.getElementById('search-results');
+            const clearBtn = document.getElementById('pitcher-search-clear');
+
+            // Search input handler
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value;
+                highlightedIndex = -1;
+                
+                if (query.trim()) {
+                    const matches = filterPitchers(query);
+                    renderSearchResults(matches);
+                } else {
+                    searchResults.classList.remove('active');
+                }
+            });
+
+            // Focus handler - show results if there's a query
+            searchInput.addEventListener('focus', () => {
+                const query = searchInput.value;
+                if (query.trim() && !currentPitcher) {
+                    const matches = filterPitchers(query);
+                    renderSearchResults(matches);
+                }
+            });
+
+            // Keyboard navigation
+            searchInput.addEventListener('keydown', (e) => {
+                const items = searchResults.querySelectorAll('.search-result-item');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (highlightedIndex < items.length - 1) {
+                        highlightedIndex++;
+                        updateHighlight(items);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (highlightedIndex > 0) {
+                        highlightedIndex--;
+                        updateHighlight(items);
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (highlightedIndex >= 0 && items[highlightedIndex]) {
+                        selectPitcher(items[highlightedIndex].dataset.id);
+                    }
+                } else if (e.key === 'Escape') {
+                    searchResults.classList.remove('active');
+                    highlightedIndex = -1;
+                }
+            });
+
+            // Update highlight
+            function updateHighlight(items) {
+                items.forEach((item, i) => {
+                    item.classList.toggle('highlighted', i === highlightedIndex);
+                });
+                // Scroll highlighted item into view
+                if (items[highlightedIndex]) {
+                    items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+                }
+            }
+
+            // Clear button
+            clearBtn.addEventListener('click', clearPitcherSelection);
+
+            // Close results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.pitcher-search')) {
+                    searchResults.classList.remove('active');
+                    highlightedIndex = -1;
                 }
             });
 

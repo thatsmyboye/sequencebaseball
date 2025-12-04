@@ -80,6 +80,24 @@ PITCHER_REGISTRY = {
         "data_file": "duran_statcast_2024.csv",
         "pitch_types": ["4-Seam Fastball", "Splitter", "Slider", "Sinker"]
     },
+    554430: {
+        "name": "Zack Wheeler",
+        "team": "PHI",
+        "team_full": "Philadelphia Phillies",
+        "position": "SP",
+        "throws": "R",
+        "data_file": "wheeler_statcast_2024.csv",
+        "pitch_types": ["4-Seam Fastball", "Slider", "Curveball", "Changeup", "Sinker"]
+    },
+    650911: {
+        "name": "Cristopher Sanchez",
+        "team": "PHI",
+        "team_full": "Philadelphia Phillies",
+        "position": "SP",
+        "throws": "L",
+        "data_file": "sanchez_statcast_2024.csv",
+        "pitch_types": ["Sinker", "Changeup", "Sweeper", "4-Seam Fastball"]
+    },
     # Add more pitchers as data becomes available
 }
 
