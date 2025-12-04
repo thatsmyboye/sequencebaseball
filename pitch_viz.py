@@ -91,31 +91,94 @@ def calculate_pitch_trajectory(row: pd.Series, num_points: int = 100) -> Tuple[n
     return x, y, z
 
 
-def create_strike_zone_trace() -> go.Scatter3d:
+def create_strike_zone_traces() -> List[go.Scatter3d]:
     """
-    Create a 3D trace for the strike zone outline at home plate
+    Create 3D traces for the strike zone outline and home plate
 
     Returns:
     --------
-    go.Scatter3d
-        Plotly 3D scatter trace for strike zone
+    list of go.Scatter3d
+        Plotly 3D scatter traces for strike zone and plate
     """
     width = STRIKE_ZONE['width'] / 2
     top = STRIKE_ZONE['top']
     bottom = STRIKE_ZONE['bottom']
+    
+    traces = []
 
-    # Strike zone rectangle at y=0 (home plate)
+    # Strike zone rectangle at y=0 (home plate) - thicker, more visible
     x = [-width, width, width, -width, -width]
     y = [0, 0, 0, 0, 0]
     z = [bottom, bottom, top, top, bottom]
 
-    return go.Scatter3d(
+    traces.append(go.Scatter3d(
         x=x, y=y, z=z,
         mode='lines',
-        line=dict(color='black', width=3),
+        line=dict(color='black', width=5),
         name='Strike Zone',
         showlegend=True
-    )
+    ))
+    
+    # Add horizontal lines at top and bottom of zone for depth reference
+    # These extend slightly back to help with depth perception
+    for z_val in [bottom, top]:
+        traces.append(go.Scatter3d(
+            x=[-width, -width], y=[0, 3], z=[z_val, z_val],
+            mode='lines',
+            line=dict(color='rgba(0,0,0,0.3)', width=2, dash='dot'),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+        traces.append(go.Scatter3d(
+            x=[width, width], y=[0, 3], z=[z_val, z_val],
+            mode='lines',
+            line=dict(color='rgba(0,0,0,0.3)', width=2, dash='dot'),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+    
+    # Add vertical corner lines extending back for depth reference
+    for x_val in [-width, width]:
+        traces.append(go.Scatter3d(
+            x=[x_val, x_val], y=[0, 3], z=[bottom, bottom],
+            mode='lines',
+            line=dict(color='rgba(0,0,0,0.2)', width=1),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+    
+    # Home plate outline (pentagon shape at ground level)
+    plate_half = 8.5/12  # 8.5 inches = half width at front
+    plate_back = 17/12   # 17 inches back point
+    plate_x = [-plate_half, plate_half, plate_half, 0, -plate_half, -plate_half]
+    plate_y = [0, 0, plate_back/2, plate_back, plate_back/2, 0]
+    plate_z = [0, 0, 0, 0, 0, 0]
+    
+    traces.append(go.Scatter3d(
+        x=plate_x, y=plate_y, z=plate_z,
+        mode='lines',
+        line=dict(color='white', width=4),
+        name='Home Plate',
+        showlegend=False,
+        hoverinfo='skip'
+    ))
+    
+    # Add filled surface for strike zone (semi-transparent)
+    traces.append(go.Mesh3d(
+        x=[-width, width, width, -width],
+        y=[0, 0, 0, 0],
+        z=[bottom, bottom, top, top],
+        i=[0, 0],
+        j=[1, 2],
+        k=[2, 3],
+        color='lightblue',
+        opacity=0.15,
+        name='Strike Zone Area',
+        showlegend=False,
+        hoverinfo='skip'
+    ))
+
+    return traces
 
 
 def visualize_pitch_trajectories_3d(
@@ -181,8 +244,9 @@ def visualize_pitch_trajectories_3d(
     # Create figure
     fig = go.Figure()
 
-    # Add strike zone
-    fig.add_trace(create_strike_zone_trace())
+    # Add strike zone and plate reference traces
+    for trace in create_strike_zone_traces():
+        fig.add_trace(trace)
 
     # Calculate stats for annotations
     stats_text = []
@@ -277,15 +341,34 @@ def visualize_pitch_trajectories_3d(
             font=dict(size=20, family='Arial, sans-serif')
         ),
         scene=dict(
-            xaxis=dict(title='Horizontal Position (ft)<br>(Catcher View)', range=[-3, 3]),
-            yaxis=dict(title='Distance from Plate (ft)', range=[0, 60]),
-            zaxis=dict(title='Height (ft)', range=[0, 8]),
+            xaxis=dict(
+                title='Horizontal Position (ft)',
+                range=[-3, 3],
+                showgrid=True,
+                gridcolor='lightgray',
+                zeroline=True,
+                zerolinecolor='black',
+                zerolinewidth=2
+            ),
+            yaxis=dict(
+                title='Distance from Plate (ft)',
+                range=[0, 60],
+                showgrid=True,
+                gridcolor='lightgray'
+            ),
+            zaxis=dict(
+                title='Height (ft)',
+                range=[0, 6],
+                showgrid=True,
+                gridcolor='lightgray'
+            ),
             camera=dict(
-                eye=dict(x=-1.5, y=-1.5, z=0.5),  # Catcher's perspective
+                eye=dict(x=0.1, y=-1.2, z=0.5),  # Slightly offset, behind plate, eye level
+                center=dict(x=0, y=0.3, z=0.4),  # Focus on strike zone area
                 up=dict(x=0, y=0, z=1)
             ),
             aspectmode='manual',
-            aspectratio=dict(x=1, y=2, z=1)
+            aspectratio=dict(x=1.5, y=4, z=1.2)  # Better proportions for pitch visualization
         ),
         width=1920,
         height=1080,
