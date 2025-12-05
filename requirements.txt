@@ -27,3 +27,6 @@ python-dotenv==1.0.0
 # MLB Data (optional - when network available)
 # pybaseball==2.2.7
 # MLB-StatsAPI==1.7.0
+
+# SportRadar API
+requests==2.31.0

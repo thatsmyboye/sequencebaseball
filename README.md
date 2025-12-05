@@ -88,6 +88,7 @@ pip install pybaseball jupyter plotly pandas numpy matplotlib seaborn scipy kale
 | `pandas` | Data manipulation |
 | `numpy` | Numerical computations |
 | `scipy` | Statistical analysis |
+| `requests` | SportRadar API integration |
 
 ---
 
@@ -162,8 +163,11 @@ sequencebaseball/
 ├── test_visualizations.py                # Testing script
 ├── generate_sample_data.py               # Sample data generator
 ├── phase1_data_exploration.ipynb         # Jupyter notebook
+├── sportradar_integration.py             # SportRadar MLB API client
+├── mlb_statsapi_integration.py           # MLB-StatsAPI integration
 │
 ├── PHASE1_DATA_DOCUMENTATION.md          # Data field reference
+├── SPORTRADAR_INTEGRATION.md             # SportRadar API documentation
 ├── README.md                             # This file
 └── LICENSE                               # MIT License
 ```
@@ -438,6 +442,61 @@ for p in pitchers:
 
 ---
 
+## 🌐 SportRadar MLB API Integration
+
+This project includes integration with [SportRadar's MLB API v8](https://developer.sportradar.com/baseball/reference/mlb-overview) for live MLB data.
+
+### What's Included
+
+| Feature | Available |
+|---------|-----------|
+| Daily/Season schedules | ✅ |
+| Game boxscores & summaries | ✅ |
+| Play-by-play data | ✅ |
+| Basic pitch metrics | ✅ |
+| Player profiles & stats | ✅ |
+| Team rosters | ✅ |
+| Standings & leaders | ✅ |
+| Injury reports | ✅ |
+| **Statcast data** | ❌ (separate premium package) |
+
+### Quick Start
+
+```python
+from sportradar_integration import SportRadarMLB
+
+# Initialize client
+client = SportRadarMLB()
+
+# Get today's schedule
+from datetime import date
+schedule = client.get_daily_schedule(date.today().strftime("%Y-%m-%d"))
+
+# Get game details
+boxscore = client.get_game_boxscore(game_id)
+pitch_metrics = client.get_game_pitch_metrics(game_id)
+
+# Get standings
+standings = client.get_standings(season=2024)
+```
+
+### API Endpoints
+
+The API server exposes SportRadar endpoints at `/sportradar/*`:
+- `GET /sportradar/status` - Check API connection
+- `GET /sportradar/schedule/{date}` - Daily schedule
+- `GET /sportradar/game/{id}/boxscore` - Game boxscore
+- `GET /sportradar/game/{id}/pitch_metrics` - Pitch metrics
+- `GET /sportradar/teams` - All MLB teams
+- `GET /sportradar/standings/{season}` - Standings
+- `GET /sportradar/injuries` - Injury report
+
+See `SPORTRADAR_INTEGRATION.md` for complete documentation.
+
+**Note:** SportRadar API key valid until January 4, 2026.
+
+---
+
 ## 🚀 Future Enhancements
 
 ### Planned Features
@@ -510,6 +569,7 @@ For questions or feedback about this project, please open an issue on GitHub.
 - **pybaseball** - For Python API wrapper
 - **Plotly** - For interactive visualizations
 - **matplotlib/seaborn** - For static charts
+- **SportRadar** - For live MLB data API
 
 ---
 
@@ -519,9 +579,10 @@ For questions or feedback about this project, please open an issue on GitHub.
 - [MLB Statcast Search](https://baseballsavant.mlb.com/statcast_search)
 - [Plotly Python Documentation](https://plotly.com/python/)
 - [Baseball Savant](https://baseballsavant.mlb.com/)
+- [SportRadar MLB API v8](https://developer.sportradar.com/baseball/reference/mlb-overview)
 
 ---
 
 **Last Updated:** December 2025
 
-**Version:** 0.1.0
+**Version:** 0.2.0
