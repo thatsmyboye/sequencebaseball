@@ -7,7 +7,42 @@ This project includes integration with [SportRadar's MLB API v8](https://develop
 **API Key:** `MkPCdbssBXUy74XhOtt58Ed7Ov8GMrJnVGHk2YmN`  
 **Valid Until:** January 4, 2026
 
+**2025 Season Data:** ✅ Available
+
 > ⚠️ **Important:** This integration does NOT include Statcast data (spin rate, exit velocity, launch angle, etc.). Statcast is a separate premium package from SportRadar. For Statcast data, use the `pybaseball` library or Baseball Savant.
+
+---
+
+## 🔀 Hybrid Approach (Recommended)
+
+We recommend using a **hybrid approach** combining both data sources:
+
+| Data Type | Source | Why |
+|-----------|--------|-----|
+| Schedules | SportRadar | Real-time updates, official data |
+| Rosters | SportRadar | Current roster, transactions |
+| Standings | SportRadar | Live standings |
+| Injuries | SportRadar | Current injury report |
+| **Pitch Data** | **pybaseball** | Full Statcast (80+ fields) |
+| **Spin/Movement** | **pybaseball** | spin_rate, pfx_x, pfx_z |
+| **Exit Velocity** | **pybaseball** | launch_speed, launch_angle |
+
+### Quick Start (Hybrid)
+
+```python
+from hybrid_data_integration import HybridMLBData
+
+mlb = HybridMLBData()
+
+# From SportRadar
+schedule = mlb.get_schedule("2025-08-15")
+standings = mlb.get_standings(2025)
+injuries = mlb.get_injuries()
+
+# From pybaseball (full Statcast)
+skubal_data = mlb.get_pitcher_statcast(669373, season=2025)
+# Includes: spin_rate, pfx_x, pfx_z, release_pos, vx0/vy0/vz0, ax/ay/az, etc.
+```
 
 ---
 
