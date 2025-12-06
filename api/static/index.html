@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sequence Baseball - Pitch Analysis</title>
+    <title>Sequence Baseball - 2025 MLB Pitch Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -82,6 +82,16 @@
             background-clip: text;
         }
 
+        .season-badge {
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+        }
+
         .controls {
             display: flex;
             gap: 1rem;
@@ -92,7 +102,7 @@
         /* Pitcher Search Autocomplete */
         .pitcher-search {
             position: relative;
-            min-width: 280px;
+            min-width: 320px;
         }
 
         .pitcher-search-input {
@@ -155,7 +165,7 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             margin-top: 4px;
-            max-height: 320px;
+            max-height: 400px;
             overflow-y: auto;
             z-index: 200;
             display: none;
@@ -164,6 +174,44 @@
 
         .search-results.active {
             display: block;
+        }
+
+        .search-results-header {
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-results-header .team-indicator {
+            background: var(--accent-blue);
+            color: white;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .search-result-group {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-result-group:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-group-header {
+            padding: 0.5rem 1rem;
+            background: rgba(163, 113, 247, 0.1);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .search-result-item {
@@ -216,9 +264,14 @@
         }
 
         .no-results {
-            padding: 1rem;
+            padding: 1.5rem;
             text-align: center;
             color: var(--text-muted);
+        }
+
+        .no-results-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
 
         /* Selected pitcher display */
@@ -450,6 +503,7 @@
         .pitch-toggle.splitter { --pitch-color: #db6d28; }
         .pitch-toggle.sinker { --pitch-color: #db6d28; }
         .pitch-toggle.sweeper { --pitch-color: #a371f7; }
+        .pitch-toggle.cutter { --pitch-color: #f778ba; }
 
         .pitch-color-dot {
             width: 12px;
@@ -852,6 +906,10 @@
                 align-items: flex-start;
             }
 
+            .pitcher-search {
+                min-width: 100%;
+            }
+
             .tab-nav {
                 overflow-x: auto;
                 padding: 1rem;
@@ -887,13 +945,14 @@
             <div class="logo">
                 <div class="logo-icon">⚾</div>
                 <span class="logo-text">Sequence Baseball</span>
+                <span class="season-badge">2025</span>
             </div>
             <div class="controls">
                 <div class="pitcher-search" id="pitcher-search">
                     <input type="text" 
                            class="pitcher-search-input" 
                            id="pitcher-search-input"
-                           placeholder="Search pitchers..."
+                           placeholder="Search pitchers or teams..."
                            autocomplete="off">
                     <button class="pitcher-search-clear" id="pitcher-search-clear" type="button">×</button>
                     <div class="search-results" id="search-results"></div>
@@ -923,7 +982,7 @@
             <div class="filter-item">
                 <label for="season-select">Season:</label>
                 <select class="filter-select" id="season-select">
-                    <option value="">All Seasons</option>
+                    <option value="2025" selected>2025</option>
                 </select>
                 <span class="season-note" id="season-note"></span>
             </div>
@@ -966,7 +1025,10 @@
                 <div id="sequences-content">
                     <div class="empty-state">
                         <div class="empty-state-icon">⚾</div>
-                        <p>Select a pitcher to view sequence analysis</p>
+                        <p>Search for a pitcher to view sequence analysis</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">
+                            Try searching "Skubal" or "Yankees" to find pitchers
+                        </p>
                     </div>
                 </div>
             </div>
@@ -991,7 +1053,7 @@
             <div id="summary-content">
                 <div class="empty-state">
                     <div class="empty-state-icon">📈</div>
-                    <p>Select a pitcher to view summary statistics</p>
+                    <p>Search for a pitcher to view summary statistics</p>
                 </div>
             </div>
         </div>
@@ -1002,72 +1064,121 @@
         let currentPitcher = null;
         let currentBatterHand = '';
         let currentSequencePosition = 'any';
-        let currentSeason = null;
+        let currentSeason = 2025;
         let currentStartDate = null;
         let currentEndDate = null;
         let pitcherData = {};
         let pitcherList = [];
         let highlightedIndex = -1;
+        let searchDebounceTimer = null;
 
-        // API Base URL - detect if running locally or deployed
+        // API Base URL
         const API_BASE = window.location.origin;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            await loadPitchers();
+            await loadInitialPitchers();
             setupEventListeners();
         });
 
-        // Load pitchers list
-        async function loadPitchers() {
+        // Load initial pitcher list (for fast autocomplete)
+        async function loadInitialPitchers() {
             try {
-                const res = await fetch(`${API_BASE}/pitchers`);
+                const res = await fetch(`${API_BASE}/pitchers?limit=500`);
                 const pitchers = await res.json();
                 
-                // Store pitcher data in both formats
                 pitcherList = pitchers;
                 pitchers.forEach(p => pitcherData[p.id] = p);
+                
+                console.log(`Loaded ${pitchers.length} pitchers`);
             } catch (err) {
                 console.error('Failed to load pitchers:', err);
             }
         }
 
-        // Filter pitchers by search query
-        function filterPitchers(query) {
+        // Search pitchers using API
+        async function searchPitchersAPI(query) {
+            try {
+                const res = await fetch(`${API_BASE}/pitchers/search?q=${encodeURIComponent(query)}&limit=20`);
+                const data = await res.json();
+                return data;
+            } catch (err) {
+                console.error('Search failed:', err);
+                return { results: [], total_count: 0, is_team_search: false };
+            }
+        }
+
+        // Filter pitchers locally for instant feedback
+        function filterPitchersLocal(query) {
             if (!query.trim()) return [];
             
             const lowerQuery = query.toLowerCase();
-            return pitcherList.filter(p => 
+            const matches = pitcherList.filter(p => 
                 p.name.toLowerCase().includes(lowerQuery) ||
-                p.team.toLowerCase().includes(lowerQuery)
-            ).slice(0, 10); // Limit to 10 results
+                p.team.toLowerCase() === lowerQuery ||
+                p.team_full.toLowerCase().includes(lowerQuery)
+            );
+            
+            // Sort alphabetically
+            return matches.sort((a, b) => a.name.localeCompare(b.name)).slice(0, 20);
         }
 
         // Render search results
-        function renderSearchResults(pitchers) {
+        function renderSearchResults(results, isTeamSearch = false, query = '') {
             const resultsContainer = document.getElementById('search-results');
             
-            if (pitchers.length === 0) {
-                resultsContainer.innerHTML = '<div class="no-results">No pitchers found</div>';
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <p>No pitchers found for "${query}"</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.25rem;">Try a different name or team</p>
+                    </div>
+                `;
                 resultsContainer.classList.add('active');
                 return;
             }
 
-            resultsContainer.innerHTML = pitchers.map((p, index) => `
-                <div class="search-result-item${index === highlightedIndex ? ' highlighted' : ''}${currentPitcher && currentPitcher.id === p.id ? ' selected' : ''}" 
-                     data-id="${p.id}" 
-                     data-index="${index}">
-                    <div>
-                        <span class="result-name">${p.name}</span>
-                        <span class="result-team">${p.team}</span>
-                    </div>
-                    <div class="result-info">
-                        <span class="result-position">${p.position}</span>
-                        <span class="result-throws">${p.throws}HP</span>
-                    </div>
-                </div>
-            `).join('');
+            let html = '';
             
+            // Add header with result count
+            const headerText = isTeamSearch 
+                ? `${results.length} pitchers found`
+                : `${results.length} results`;
+            
+            html += `
+                <div class="search-results-header">
+                    <span>${headerText}</span>
+                    ${isTeamSearch ? '<span class="team-indicator">Team Search</span>' : ''}
+                </div>
+            `;
+
+            // Group by team if it's a team search
+            if (isTeamSearch && results.length > 0) {
+                const teamName = results[0].team_full || results[0].team;
+                html += `<div class="search-result-group-header">${teamName}</div>`;
+            }
+
+            // Add results
+            results.forEach((p, index) => {
+                const isSelected = currentPitcher && currentPitcher.id === p.id;
+                html += `
+                    <div class="search-result-item${index === highlightedIndex ? ' highlighted' : ''}${isSelected ? ' selected' : ''}" 
+                         data-id="${p.id}" 
+                         data-index="${index}">
+                        <div>
+                            <span class="result-name">${p.name}</span>
+                            <span class="result-team">${p.team}</span>
+                        </div>
+                        <div class="result-info">
+                            <span class="result-position">${p.position}</span>
+                            <span class="result-throws">${p.throws}HP</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = html;
             resultsContainer.classList.add('active');
 
             // Add click handlers to results
@@ -1090,53 +1201,48 @@
 
             filterBar.classList.remove('hidden');
             
-            const seasons = currentPitcher.available_seasons || [];
+            const seasons = currentPitcher.available_seasons || [2025];
             
             // Build options (most recent first)
-            let optionsHTML = '<option value="">All Seasons</option>';
+            let optionsHTML = '';
             seasons.slice().sort((a, b) => b - a).forEach(season => {
-                optionsHTML += `<option value="${season}">${season}</option>`;
+                optionsHTML += `<option value="${season}"${season === 2025 ? ' selected' : ''}>${season}</option>`;
             });
             
             select.innerHTML = optionsHTML;
-            
-            // Set default to most recent season
-            if (seasons.length > 0) {
-                const latestSeason = Math.max(...seasons);
-                select.value = latestSeason;
-                currentSeason = latestSeason;
-                updateSeasonNote();
-            }
-        }
-
-        // Update season note
-        async function updateSeasonNote() {
-            const noteEl = document.getElementById('season-note');
-            if (!currentPitcher || !currentSeason) {
-                noteEl.textContent = '';
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_BASE}/pitchers/${currentPitcher.id}/seasons`);
-                const data = await res.json();
-                const seasonInfo = data.available_seasons.find(s => s.season === currentSeason);
-                noteEl.textContent = seasonInfo?.note || '';
-            } catch {
-                noteEl.textContent = '';
-            }
+            currentSeason = 2025;
         }
 
         // Select a pitcher
         function selectPitcher(pitcherId) {
-            currentPitcher = pitcherData[pitcherId];
+            const pitcherIdInt = parseInt(pitcherId);
+            currentPitcher = pitcherData[pitcherIdInt];
+            
+            if (!currentPitcher) {
+                // Fetch pitcher details if not in local cache
+                fetch(`${API_BASE}/pitchers/${pitcherIdInt}`)
+                    .then(res => res.json())
+                    .then(pitcher => {
+                        pitcherData[pitcherIdInt] = pitcher;
+                        currentPitcher = pitcher;
+                        finishSelectingPitcher();
+                    })
+                    .catch(err => {
+                        console.error('Failed to fetch pitcher:', err);
+                    });
+            } else {
+                finishSelectingPitcher();
+            }
+        }
+
+        function finishSelectingPitcher() {
             const input = document.getElementById('pitcher-search-input');
             input.value = `${currentPitcher.name} (${currentPitcher.team})`;
             document.getElementById('search-results').classList.remove('active');
             highlightedIndex = -1;
             
             // Reset filters
-            currentSeason = null;
+            currentSeason = 2025;
             currentStartDate = null;
             currentEndDate = null;
             document.getElementById('start-date').value = '';
@@ -1149,7 +1255,7 @@
         // Clear pitcher selection
         function clearPitcherSelection() {
             currentPitcher = null;
-            currentSeason = null;
+            currentSeason = 2025;
             currentStartDate = null;
             currentEndDate = null;
             
@@ -1164,13 +1270,16 @@
             document.getElementById('sequences-content').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">⚾</div>
-                    <p>Select a pitcher to view sequence analysis</p>
+                    <p>Search for a pitcher to view sequence analysis</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--text-muted);">
+                        Try searching "Skubal" or "Yankees" to find pitchers
+                    </p>
                 </div>
             `;
             document.getElementById('summary-content').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">📈</div>
-                    <p>Select a pitcher to view summary statistics</p>
+                    <p>Search for a pitcher to view summary statistics</p>
                 </div>
             `;
             document.getElementById('pitch-toggles').innerHTML = '';
@@ -1183,25 +1292,50 @@
             const searchResults = document.getElementById('search-results');
             const clearBtn = document.getElementById('pitcher-search-clear');
 
-            // Search input handler
+            // Search input handler with debounce
             searchInput.addEventListener('input', (e) => {
-                const query = e.target.value;
+                const query = e.target.value.trim();
                 highlightedIndex = -1;
                 
-                if (query.trim()) {
-                    const matches = filterPitchers(query);
-                    renderSearchResults(matches);
-                } else {
-                    searchResults.classList.remove('active');
+                // Clear previous timer
+                if (searchDebounceTimer) {
+                    clearTimeout(searchDebounceTimer);
                 }
+                
+                if (!query) {
+                    searchResults.classList.remove('active');
+                    return;
+                }
+                
+                // Instant local search for responsiveness
+                const localResults = filterPitchersLocal(query);
+                if (localResults.length > 0) {
+                    renderSearchResults(localResults, false, query);
+                }
+                
+                // Debounced API search for accurate results
+                searchDebounceTimer = setTimeout(async () => {
+                    const apiResults = await searchPitchersAPI(query);
+                    if (apiResults.results.length > 0 || apiResults.total_count === 0) {
+                        // Update local cache
+                        apiResults.results.forEach(p => {
+                            if (!pitcherData[p.id]) {
+                                pitcherData[p.id] = p;
+                            }
+                        });
+                        renderSearchResults(apiResults.results, apiResults.is_team_search, query);
+                    }
+                }, 150);
             });
 
             // Focus handler - show results if there's a query
             searchInput.addEventListener('focus', () => {
-                const query = searchInput.value;
-                if (query.trim() && !currentPitcher) {
-                    const matches = filterPitchers(query);
-                    renderSearchResults(matches);
+                const query = searchInput.value.trim();
+                if (query && !currentPitcher) {
+                    const localResults = filterPitchersLocal(query);
+                    if (localResults.length > 0) {
+                        renderSearchResults(localResults, false, query);
+                    }
                 }
             });
 
@@ -1237,7 +1371,6 @@
                 items.forEach((item, i) => {
                     item.classList.toggle('highlighted', i === highlightedIndex);
                 });
-                // Scroll highlighted item into view
                 if (items[highlightedIndex]) {
                     items[highlightedIndex].scrollIntoView({ block: 'nearest' });
                 }
@@ -1287,10 +1420,8 @@
 
             // Season select
             document.getElementById('season-select').addEventListener('change', (e) => {
-                currentSeason = e.target.value ? parseInt(e.target.value) : null;
-                updateSeasonNote();
+                currentSeason = e.target.value ? parseInt(e.target.value) : 2025;
                 
-                // Update date range constraints based on season
                 const startDate = document.getElementById('start-date');
                 const endDate = document.getElementById('end-date');
                 
@@ -1299,14 +1430,8 @@
                     startDate.max = `${currentSeason}-12-31`;
                     endDate.min = `${currentSeason}-01-01`;
                     endDate.max = `${currentSeason}-12-31`;
-                } else {
-                    startDate.min = '';
-                    startDate.max = '';
-                    endDate.min = '';
-                    endDate.max = '';
                 }
                 
-                // Clear date filters when changing season
                 startDate.value = '';
                 endDate.value = '';
                 currentStartDate = null;
@@ -1359,11 +1484,10 @@
                     batter_hand: currentBatterHand || null,
                     min_sample_size: 10,
                     top_n: 15,
-                    sequence_position: currentSequencePosition
+                    sequence_position: currentSequencePosition,
+                    season: currentSeason
                 };
                 
-                // Add season/date filters
-                if (currentSeason) body.season = currentSeason;
                 if (currentStartDate) body.start_date = currentStartDate;
                 if (currentEndDate) body.end_date = currentEndDate;
 
@@ -1374,10 +1498,21 @@
                 });
 
                 const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Failed to load sequences');
+                }
+                
                 renderSequenceTable(data);
             } catch (err) {
                 console.error('Failed to load sequences:', err);
-                content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div><p>Failed to load sequences</p></div>`;
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Could not load sequence data</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-muted);">${err.message}</p>
+                    </div>
+                `;
             }
         }
 
@@ -1446,7 +1581,6 @@
 
             tableHTML += `</tbody></table>`;
             
-            // Add footnote with data citation, date range, and methodology
             const dateInfo = data.date_range 
                 ? `<span class="footnote-value">${data.date_range.start} to ${data.date_range.end}</span>`
                 : '<span class="footnote-value">All available data</span>';
@@ -1471,8 +1605,6 @@
             `;
             
             document.getElementById('sequences-content').innerHTML = tableHTML;
-
-            // Setup table sorting
             setupTableSorting();
         }
 
@@ -1487,7 +1619,6 @@
                     const type = th.dataset.type;
                     const asc = !th.classList.contains('sort-asc');
 
-                    // Clear other sorts
                     table.querySelectorAll('th').forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
                     th.classList.add(asc ? 'sort-asc' : 'sort-desc');
 
@@ -1510,7 +1641,6 @@
 
                     rows.forEach(row => tbody.appendChild(row));
 
-                    // Update ranks
                     tbody.querySelectorAll('tr').forEach((row, i) => {
                         const badge = row.querySelector('.rank-badge');
                         badge.textContent = i + 1;
@@ -1529,15 +1659,19 @@
 
             const colorMap = {
                 '4-Seam Fastball': 'fastball',
+                'Fastball': 'fastball',
                 'Slider': 'slider',
                 'Changeup': 'changeup',
                 'Curveball': 'curveball',
                 'Splitter': 'splitter',
+                'Split-Finger': 'splitter',
                 'Sinker': 'sinker',
-                'Sweeper': 'sweeper'
+                'Sweeper': 'sweeper',
+                'Cutter': 'cutter',
+                'Knuckle Curve': 'curveball'
             };
 
-            container.innerHTML = pitchTypes.map(pt => {
+            container.innerHTML = pitchTypes.slice(0, 6).map(pt => {
                 const colorClass = colorMap[pt] || 'fastball';
                 return `
                     <label class="pitch-toggle ${colorClass}">
@@ -1569,11 +1703,10 @@
                     pitcher_id: parseInt(currentPitcher.id),
                     pitch_types: selectedPitches,
                     batter_hand: currentBatterHand || null,
-                    max_pitches_per_type: 30
+                    max_pitches_per_type: 30,
+                    season: currentSeason
                 };
                 
-                // Add season/date filters
-                if (currentSeason) body.season = currentSeason;
                 if (currentStartDate) body.start_date = currentStartDate;
                 if (currentEndDate) body.end_date = currentEndDate;
 
@@ -1583,13 +1716,16 @@
                     body: JSON.stringify(body)
                 });
 
-                if (!res.ok) throw new Error('Failed to load tunnel');
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || 'Failed to load tunnel');
+                }
                 
                 const html = await res.text();
                 frame.srcdoc = html;
             } catch (err) {
                 console.error('Failed to load tunnel:', err);
-                frame.srcdoc = `<div style='display:flex;align-items:center;justify-content:center;height:100%;color:#f85149;font-family:sans-serif;'><div style='text-align:center;'><div style='font-size:2rem;margin-bottom:1rem;'>❌</div>Failed to load visualization</div></div>`;
+                frame.srcdoc = `<div style='display:flex;align-items:center;justify-content:center;height:100%;color:#f85149;font-family:sans-serif;'><div style='text-align:center;'><div style='font-size:2rem;margin-bottom:1rem;'>❌</div>Failed to load visualization<div style='font-size:0.9rem;margin-top:0.5rem;color:#8b949e;'>${err.message}</div></div></div>`;
             }
         }
 
@@ -1601,19 +1737,27 @@
             content.innerHTML = `<div class="loading"><div class="loading-spinner"></div>Loading summary...</div>`;
 
             try {
-                let url = `${API_BASE}/data/${currentPitcher.id}/summary`;
-                const params = new URLSearchParams();
-                if (currentSeason) params.append('season', currentSeason);
-                if (currentStartDate) params.append('start_date', currentStartDate);
-                if (currentEndDate) params.append('end_date', currentEndDate);
-                if (params.toString()) url += `?${params.toString()}`;
+                let url = `${API_BASE}/data/${currentPitcher.id}/summary?season=${currentSeason}`;
+                if (currentStartDate) url += `&start_date=${currentStartDate}`;
+                if (currentEndDate) url += `&end_date=${currentEndDate}`;
 
                 const res = await fetch(url);
                 const data = await res.json();
+                
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Failed to load summary');
+                }
+                
                 renderSummary(data);
             } catch (err) {
                 console.error('Failed to load summary:', err);
-                content.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div><p>Failed to load summary</p></div>`;
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Could not load summary data</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-muted);">${err.message}</p>
+                    </div>
+                `;
             }
         }
 
@@ -1622,17 +1766,15 @@
             const totalPitches = data.total_pitches;
             const arsenal = data.pitch_arsenal || {};
             const velocities = data.avg_velocity_by_pitch || {};
-            const availableSeasons = data.available_seasons || [];
+            const availableSeasons = data.available_seasons || [2025];
 
-            // Sort arsenal by usage
             const sortedArsenal = Object.entries(arsenal)
                 .sort((a, b) => b[1] - a[1]);
             const maxUsage = sortedArsenal.length > 0 ? sortedArsenal[0][1] : 1;
 
-            // Format seasons available
             const seasonsDisplay = availableSeasons.length > 0 
                 ? `${Math.min(...availableSeasons)} - ${Math.max(...availableSeasons)} (${availableSeasons.length} seasons)`
-                : 'Unknown';
+                : '2025';
 
             const html = `
                 <div class="summary-grid">

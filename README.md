@@ -1,133 +1,66 @@
-# Baseball Pitch Sequencing Visualization System
+# Sequence Baseball - 2025 MLB Pitch Analysis
 
-A comprehensive Python-based system for analyzing and visualizing MLB pitcher data using Statcast metrics. Features 3D pitch trajectory visualization, sequence analysis, and automated portfolio generation.
+A comprehensive system for analyzing and visualizing MLB pitcher data using Statcast metrics. Features 3D pitch trajectory visualization, sequence analysis, and live data integration for the **2025 MLB season**.
 
-## 🎯 Project Overview
+## 🎯 Overview
 
-This project analyzes pitch sequencing strategies and creates portfolio-ready visualizations for MLB pitchers. Built with Python, Plotly, and matplotlib, it transforms raw Statcast data into compelling visual stories.
+This project analyzes pitch sequencing strategies and creates portfolio-ready visualizations for **all MLB pitchers** with data from the 2025 season. Built with Python, FastAPI, Plotly, and matplotlib, it provides:
 
-### Featured Pitchers
-
-1. **Tarik Skubal (DET)** - "The Tunnel Master"
-   - 2024 & 2025 AL Cy Young Winner
-   - Elite fastball-slider tunnel combination
-   - Focus: How his pitch sequencing dominated hitters
-
-2. **Jhoan Duran (MIN/PHI)** - "The Splinker"
-   - Hardest splitter in baseball (94 MPH avg)
-   - Elite 100+ MPH fastball
-   - Focus: Why his splitter is nearly unhittable
-
----
-
-## 📋 Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [Core Functions](#core-functions)
-- [Generated Visualizations](#generated-visualizations)
-- [Data Documentation](#data-documentation)
-- [Usage Examples](#usage-examples)
-- [Technical Specifications](#technical-specifications)
-- [Known Issues](#known-issues)
-- [Future Enhancements](#future-enhancements)
+- **Live 2025 Data**: Automatically fetches current season data from Baseball Savant via pybaseball
+- **All Pitchers**: Search and analyze any pitcher with 100+ pitches in 2025
+- **Team Search**: Find all pitchers for a specific team
+- **Alphabetized Search**: Results sorted A-Z for easy navigation
+- **De-duped Registry**: Clean, distinct pitcher records
 
 ---
 
 ## ✨ Features
 
-### Phase 1: Data Exploration
-- ✅ Automated Statcast data retrieval using `pybaseball`
-- ✅ Sample data generation for offline development
-- ✅ Comprehensive data field documentation
-- ✅ Data quality assessment
+### 🔍 Pitcher Search
+- Search by **pitcher name** (e.g., "Skubal", "Wheeler")
+- Search by **team** (e.g., "Yankees", "NYY", "Detroit Tigers")
+- **Alphabetized results** in search lookahead
+- **Auto-complete** with instant local filtering + API search
 
-### Phase 2: Core Visualization Functions
-- ✅ **3D Pitch Trajectory Visualization** - Interactive tunneling analysis
-- ✅ **Sequence Analysis** - Calculate effectiveness metrics (whiff rate, chase rate, weak contact)
-- ✅ **Portfolio Export Pipeline** - Automated batch processing
+### 📊 Analysis Tools
+- **3D Pitch Trajectories** - Interactive tunneling visualization
+- **Sequence Analysis** - Calculate whiff rate, chase rate, weak contact
+- **Summary Statistics** - Pitch arsenal, velocity, and more
+- **Date Range Filtering** - Analyze specific time periods
 
-### Phase 3: Showcase Pieces
-- ✅ Pitcher-specific narrative visualizations
-- ✅ Movement profiles and velocity distributions
-- ✅ Usage analysis by count situation
-- ✅ Automated narrative generation
+### 🗄️ Data Management
+- **Live Data Fetching** - Gets real Statcast data from Baseball Savant
+- **Intelligent Caching** - Caches pitcher data for fast access
+- **Registry System** - Maintains list of all 2025 pitchers
 
 ---
 
-## 🚀 Installation
+## 🚀 Quick Start
 
-### Requirements
-
-- Python 3.8+
-- pip package manager
-
-### Setup
+### 1. Install Dependencies
 
 ```bash
-# Clone or navigate to project directory
 cd sequencebaseball
-
-# Install dependencies
-pip install pybaseball jupyter plotly pandas numpy matplotlib seaborn scipy kaleido
-
-# Optional: For PNG export from Plotly (requires Chrome)
-# Run: plotly_get_chrome
+pip install -r requirements.txt
 ```
 
-### Dependencies
-
-| Package | Purpose |
-|---------|---------|
-| `pybaseball` | MLB Statcast data retrieval |
-| `plotly` | Interactive 3D visualizations |
-| `matplotlib` | Static charts and graphs |
-| `seaborn` | Statistical visualizations |
-| `pandas` | Data manipulation |
-| `numpy` | Numerical computations |
-| `scipy` | Statistical analysis |
-| `requests` | SportRadar API integration |
-
----
-
-## 🏃 Quick Start
-
-### Option 1: Run Complete Showcase (Recommended)
+### 2. Initialize 2025 Data
 
 ```bash
-# Generate complete showcases for both pitchers
-python phase3_showcase.py
+# Build pitcher registry from 2025 MLB data
+python init_2025_data.py
+
+# Optional: Pre-fetch data for all pitchers (takes longer)
+python init_2025_data.py --fetch-all
 ```
 
-This will create:
-- 3D tunnel visualizations
-- Sequence analysis charts
-- Movement profiles
-- Velocity distributions
-- Usage breakdowns
-- Narrative summaries
-
-Output: `showcase_portfolios/skubal_tarik/` and `showcase_portfolios/duran_jhoan/`
-
-### Option 2: Test Individual Functions
+### 3. Start the API
 
 ```bash
-# Test all visualization functions with sample data
-python test_visualizations.py
+python run_api.py
 ```
 
-Output: `test_output/` directory with all test visualizations
-
-### Option 3: Use Jupyter Notebook
-
-```bash
-# Launch Jupyter
-jupyter notebook
-
-# Open: phase1_data_exploration.ipynb
-```
+Then open http://localhost:8000 in your browser.
 
 ---
 
@@ -136,453 +69,218 @@ jupyter notebook
 ```
 sequencebaseball/
 │
-├── data/                                  # Sample Statcast data
-│   ├── skubal_statcast_2024.csv          # Skubal pitches (2,000)
-│   └── duran_statcast_2024.csv           # Duran pitches (1,500)
+├── api/
+│   ├── main.py              # FastAPI application
+│   └── static/
+│       └── index.html       # Web frontend
 │
-├── showcase_portfolios/                   # Phase 3 output
-│   ├── skubal_tarik/
-│   │   ├── 01_tunnel_fastball_slider_RHH.html
-│   │   ├── 02_sequences_chart_RHH.png
-│   │   ├── 03_sequences_chart_LHH.png
-│   │   ├── 04_movement_profile.png
-│   │   ├── 05_velocity_distribution.png
-│   │   ├── 06_usage_by_count.png
-│   │   ├── NARRATIVE.md
-│   │   └── [CSV data files]
-│   │
-│   └── duran_jhoan/
-│       └── [Similar structure]
+├── data/
+│   ├── cache/               # Cached pitcher data (auto-generated)
+│   └── pitcher_registry_2025.json  # Pitcher registry (auto-generated)
 │
-├── test_output/                          # Phase 2 test output
-│   ├── portfolio_skubal/
-│   └── portfolio_duran/
+├── init_2025_data.py        # Initialize 2025 pitcher data
+├── mlb_2025_integration.py  # Data fetching from pybaseball
+├── pitch_viz.py             # Core visualization functions
+├── sequence_visualizations.py  # Chart generation
+├── run_api.py               # API startup script
 │
-├── pitch_viz.py                          # Core visualization module
-├── phase3_showcase.py                    # Showcase generation script
-├── test_visualizations.py                # Testing script
-├── generate_sample_data.py               # Sample data generator
-├── phase1_data_exploration.ipynb         # Jupyter notebook
-├── sportradar_integration.py             # SportRadar MLB API client
-├── mlb_statsapi_integration.py           # MLB-StatsAPI integration
-│
-├── PHASE1_DATA_DOCUMENTATION.md          # Data field reference
-├── SPORTRADAR_INTEGRATION.md             # SportRadar API documentation
-├── README.md                             # This file
-└── LICENSE                               # MIT License
+├── requirements.txt         # Python dependencies
+└── README.md               # This file
 ```
 
 ---
 
-## 🎨 Core Functions
+## 🔧 API Endpoints
 
-### 1. 3D Pitch Trajectory Visualization
+### Pitchers
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /pitchers` | List all pitchers (alphabetized) |
+| `GET /pitchers/search?q={query}` | Search by name or team |
+| `GET /pitchers/{id}` | Get specific pitcher details |
+| `GET /pitchers/{id}/seasons` | Available seasons |
+| `GET /pitchers/{id}/pitch-types` | Pitcher's pitch arsenal |
+
+### Teams
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /teams` | List all MLB teams with pitcher counts |
+| `GET /teams/{team}/pitchers` | All pitchers for a team |
+
+### Visualizations
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /visualizations/tunnel` | 3D pitch trajectory visualization |
+| `POST /visualizations/sequences` | Sequence analysis data |
+| `POST /visualizations/sequences/chart` | Interactive sequence table |
+
+### Data
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /data/{id}/summary` | Pitcher summary statistics |
+| `GET /data/{id}/movement` | Pitch movement profile |
+| `POST /data/{id}/refresh` | Force refresh pitcher data |
+
+---
+
+## 💻 Usage Examples
+
+### Search for Pitchers
 
 ```python
-from pitch_viz import visualize_pitch_trajectories_3d
+import requests
 
-fig = visualize_pitch_trajectories_3d(
-    df=pitcher_data,
-    pitcher_name="Tarik Skubal",
-    pitch_types=["4-Seam Fastball", "Slider"],
-    batter_hand='R',  # Optional: 'R', 'L', or None for all
-    max_pitches_per_type=25,
-    output_html="output.html",
-    output_png="output.png"  # Requires Chrome/Kaleido
-)
+# Search by name
+response = requests.get("http://localhost:8000/pitchers/search?q=Skubal")
+print(response.json())
+# Returns: {"results": [{"name": "Tarik Skubal", "team": "DET", ...}], "is_team_search": false}
+
+# Search by team
+response = requests.get("http://localhost:8000/pitchers/search?q=Yankees")
+print(response.json())
+# Returns: {"results": [...], "is_team_search": true}
 ```
 
-**Features:**
-- Interactive 3D scatter/line plots
-- Catcher's perspective camera angle
-- Strike zone overlay
-- Release point annotations
-- Pitch statistics sidebar
-
-### 2. Sequence Analysis
+### Get All Pitchers for a Team
 
 ```python
-from pitch_viz import analyze_pitch_sequences
-
-sequences = analyze_pitch_sequences(
-    df=pitcher_data,
-    pitcher_name="Tarik Skubal",
-    min_sample_size=20,
-    success_metric='whiff_rate',  # 'whiff_rate', 'chase_rate', 'overall'
-    batter_hand='R'  # Optional
-)
+response = requests.get("http://localhost:8000/teams/NYY/pitchers")
+yankees_pitchers = response.json()
+# Returns alphabetized list of all Yankees pitchers
 ```
 
-**Returns DataFrame with:**
-- Sequence (e.g., "Fastball → Slider")
-- Usage count
-- Whiff Rate (%)
-- Chase Rate (%)
-- Weak Contact Rate (%)
-- Overall Score
-
-### 3. Portfolio Package Generation
+### Generate 3D Tunnel Visualization
 
 ```python
-from pitch_viz import generate_portfolio_package
-
-manifest = generate_portfolio_package(
-    df=pitcher_data,
-    pitcher_name="Tarik Skubal",
-    pitcher_id=669373,
-    output_dir="portfolios/skubal",
-    pitch_types_for_tunnel=["4-Seam Fastball", "Slider"],
-    batter_hands=['R', 'L'],
-    include_interactive=True
-)
-```
-
-**Generates:**
-- Hero tunnel visualization (HTML + PNG)
-- Sequence analysis by batter handedness (CSV + charts)
-- Summary statistics (JSON + TXT)
-- Complete organized folder structure
-
----
-
-## 📊 Generated Visualizations
-
-### 3D Tunnel Visualizations
-
-**Shows:**
-- Pitch trajectories from release to plate
-- Color-coded by pitch type
-- Release point clusters
-- Strike zone reference
-
-### Sequence Analysis Charts
-
-**Displays:**
-- Top 10 most effective sequences
-- Whiff rate, chase rate, weak contact rate
-- Usage frequency (n=X)
-- Color-coded metrics
-
-### Movement Profiles
-
-**Illustrates:**
-- Horizontal vs vertical break
-- Scatter plot by pitch type
-- Mean markers for each pitch
-
-### Velocity Distributions
-
-**Features:**
-- Violin plots by pitch type
-- Mean velocity annotations
-- Distribution shapes
-
----
-
-## 📖 Data Documentation
-
-### Available Statcast Fields (35 total)
-
-**Core Metrics:**
-- `pitch_type`, `pitch_name` - Pitch identification
-- `release_speed`, `release_spin_rate` - Velocity and spin
-- `release_pos_x`, `release_pos_y`, `release_pos_z` - Release point (3D)
-- `pfx_x`, `pfx_z` - Movement (horizontal, vertical)
-- `plate_x`, `plate_z` - Location at plate
-- `vx0`, `vy0`, `vz0` - Initial velocity components
-- `ax`, `ay`, `az` - Acceleration components
-
-**Context:**
-- `description` - Pitch outcome (ball, strike, whiff, etc.)
-- `events` - At-bat result
-- `zone` - Location zone (1-9 in strike zone)
-- `stand`, `p_throws` - Batter/pitcher handedness
-- `balls`, `strikes` - Count
-
-**Sequencing:**
-- `game_date`, `at_bat_number`, `pitch_number`
-
-See `PHASE1_DATA_DOCUMENTATION.md` for complete field reference.
-
----
-
-## 💡 Usage Examples
-
-### Example 1: Create Custom Tunnel Viz
-
-```python
-import pandas as pd
-from pitch_viz import visualize_pitch_trajectories_3d
-
-# Load your data
-df = pd.read_csv('data/skubal_statcast_2024.csv')
-
-# Create visualization
-visualize_pitch_trajectories_3d(
-    df=df,
-    pitcher_name="Tarik Skubal",
-    pitch_types=["4-Seam Fastball", "Slider", "Changeup"],
-    batter_hand='L',  # vs lefties only
-    output_html="skubal_vs_LHH.html"
-)
-```
-
-### Example 2: Find Best Sequences
-
-```python
-from pitch_viz import analyze_pitch_sequences, create_sequence_chart
-
-# Analyze
-sequences = analyze_pitch_sequences(
-    df=df,
-    pitcher_name="Tarik Skubal",
-    min_sample_size=15,
-    success_metric='whiff_rate'
-)
-
-# Display top 5
-print(sequences.head(5))
-
-# Create chart
-create_sequence_chart(
-    sequence_df=sequences,
-    pitcher_name="Tarik Skubal",
-    top_n=8,
-    output_png="top_sequences.png"
-)
-```
-
-### Example 3: Batch Process Multiple Pitchers
-
-```python
-from pitch_viz import generate_portfolio_package
-import pandas as pd
-
-pitchers = [
-    {'name': 'Tarik Skubal', 'id': 669373, 'file': 'skubal_statcast_2024.csv',
-     'pitches': ['4-Seam Fastball', 'Slider']},
-    {'name': 'Jhoan Duran', 'id': 650556, 'file': 'duran_statcast_2024.csv',
-     'pitches': ['4-Seam Fastball', 'Splitter']},
-]
-
-for p in pitchers:
-    df = pd.read_csv(f'data/{p["file"]}')
-    generate_portfolio_package(
-        df=df,
-        pitcher_name=p['name'],
-        pitcher_id=p['id'],
-        output_dir=f'portfolios/{p["name"].replace(" ", "_").lower()}',
-        pitch_types_for_tunnel=p['pitches']
-    )
+response = requests.post("http://localhost:8000/visualizations/tunnel", json={
+    "pitcher_id": 669373,  # Tarik Skubal
+    "pitch_types": ["4-Seam Fastball", "Slider"],
+    "season": 2025,
+    "max_pitches_per_type": 30
+})
+# Returns HTML visualization
 ```
 
 ---
 
-## 🔧 Technical Specifications
+## 📊 Search Functionality
 
-### Visualization Standards
+### Name Search
+- Searches pitcher names (partial match)
+- Returns alphabetized results
+- Example: "Wheeler" → Zack Wheeler, Kyle Wheeler, etc.
 
-**Colors (Colorblind-Friendly):**
-- Fastball: #E63946 (Red)
-- Slider: #FFD166 (Yellow)
-- Curveball: #06AED5 (Blue)
-- Changeup: #06A77D (Green)
-- Splitter/Sinker: #F77F00 (Orange)
+### Team Search
+- Detects team abbreviations (NYY, LAD, etc.)
+- Matches partial team names ("Yankees", "Dodgers")
+- Returns all pitchers for that team, alphabetized
+- Example: "Yankees" → All NY Yankees pitchers
 
-**File Formats:**
-- Interactive: HTML (Plotly)
-- Static charts: PNG (300 DPI)
-- Data exports: CSV
-- Metadata: JSON
+### Search Response
 
-**Dimensions:**
-- 3D visualizations: 1920x1080
-- Charts: 1200x800 to 1200x1000
-- DPI: 100 (screen), 300 (print)
-
-### Performance
-
-- Single pitcher analysis: < 2 minutes
-- Full portfolio generation: < 5 minutes
-- Batch processing (10 pitchers): < 30 minutes
-
-### Data Requirements
-
-- Minimum 500 pitches per pitcher for reliable analysis
-- Minimum 20 occurrences per sequence for statistical validity
-- At least 200 pitches per pitch type for movement analysis
-
----
-
-## ⚠️ Known Issues
-
-### 1. Network Access to Statcast API
-
-**Issue:** Cannot access baseballsavant.mlb.com due to network proxy restrictions (403 Forbidden)
-
-**Solution:** Project includes realistic sample data generator
-- Use `generate_sample_data.py` to create test data
-- Code is designed to work with real Statcast data once network access is available
-- Simply replace CSV files in `data/` directory
-
-### 2. PNG Export from Plotly
-
-**Issue:** Kaleido requires Chrome for PNG export
-
-**Solution:**
-- Interactive HTML files work perfectly (primary deliverable)
-- Install Chrome with `plotly_get_chrome` for PNG export
-- Alternative: Use matplotlib-based charts (included)
-
-### 3. Jhoan Duran Player Lookup
-
-**Issue:** `playerid_lookup('duran', 'jhoan')` returns empty
-
-**Workaround:** Using estimated MLB ID (650556) in sample data
-
----
-
-## 🌐 SportRadar MLB API Integration
-
-This project includes integration with [SportRadar's MLB API v8](https://developer.sportradar.com/baseball/reference/mlb-overview) for live MLB data.
-
-### What's Included
-
-| Feature | Available |
-|---------|-----------|
-| Daily/Season schedules | ✅ |
-| Game boxscores & summaries | ✅ |
-| Play-by-play data | ✅ |
-| Basic pitch metrics | ✅ |
-| Player profiles & stats | ✅ |
-| Team rosters | ✅ |
-| Standings & leaders | ✅ |
-| Injury reports | ✅ |
-| **Statcast data** | ❌ (separate premium package) |
-
-### Quick Start
-
-```python
-from sportradar_integration import SportRadarMLB
-
-# Initialize client
-client = SportRadarMLB()
-
-# Get today's schedule
-from datetime import date
-schedule = client.get_daily_schedule(date.today().strftime("%Y-%m-%d"))
-
-# Get game details
-boxscore = client.get_game_boxscore(game_id)
-pitch_metrics = client.get_game_pitch_metrics(game_id)
-
-# Get standings
-standings = client.get_standings(season=2024)
+```json
+{
+  "query": "Yankees",
+  "results": [
+    {"id": 123456, "name": "Aaron Judge", "team": "NYY", ...},
+    {"id": 234567, "name": "Gerrit Cole", "team": "NYY", ...}
+  ],
+  "total_count": 15,
+  "is_team_search": true
+}
 ```
 
-### API Endpoints
+---
 
-The API server exposes SportRadar endpoints at `/sportradar/*`:
-- `GET /sportradar/status` - Check API connection
-- `GET /sportradar/schedule/{date}` - Daily schedule
-- `GET /sportradar/game/{id}/boxscore` - Game boxscore
-- `GET /sportradar/game/{id}/pitch_metrics` - Pitch metrics
-- `GET /sportradar/teams` - All MLB teams
-- `GET /sportradar/standings/{season}` - Standings
-- `GET /sportradar/injuries` - Injury report
+## 🗄️ Data Sources
 
-See `SPORTRADAR_INTEGRATION.md` for complete documentation.
+### Primary: pybaseball (Baseball Savant)
+- Official MLB Statcast data
+- All 35+ Statcast fields
+- Release point, spin rate, movement, velocity
+- Game outcomes and contexts
 
-**Note:** SportRadar API key valid until January 4, 2026.
+### Pitch Registry
+- Built automatically from 2025 season data
+- Includes all pitchers with 100+ pitches
+- De-duped and distinct entries
+- Updated via `init_2025_data.py`
 
 ---
 
-## 🚀 Future Enhancements
+## ⚙️ Configuration
 
-### Planned Features
+### Minimum Pitch Threshold
+```bash
+# Include pitchers with 50+ pitches instead of 100
+python init_2025_data.py --min-pitches 50
+```
 
-1. **League Average Comparisons**
-   - Compare pitcher metrics to MLB averages
-   - Percentile rankings for each metric
+### Refresh Data
+```bash
+# Via API
+curl -X POST http://localhost:8000/registry/refresh
 
-2. **Multi-Pitcher Comparisons**
-   - Side-by-side tunnel visualizations
-   - Comparative sequence analysis
-
-3. **Advanced Metrics**
-   - Expected stats (xwOBA, xBA)
-   - Pitch quality scoring
-   - Sequencing entropy
-
-4. **Interactive Dashboard**
-   - Streamlit or Dash web interface
-   - Real-time data updates
-   - Custom date range selection
-
-5. **Video Integration**
-   - Sync pitch data with video clips
-   - Side-by-side visual/data analysis
-
-6. **Report Generation**
-   - PDF export with all visualizations
-   - LaTeX formatting for academic papers
-   - PowerPoint template integration
+# Or run init script again
+python init_2025_data.py
+```
 
 ---
 
-## 📝 Citation
+## 🔧 Requirements
 
-If you use this project in your research or analysis, please cite:
+- Python 3.8+
+- pybaseball >= 2.2.7
+- FastAPI
+- pandas, numpy
+- plotly, matplotlib, seaborn
+- requests
 
-```
-Baseball Pitch Sequencing Visualization System (2025)
-Data Source: MLB Statcast via pybaseball
-```
+See `requirements.txt` for complete list.
+
+---
+
+## 📝 Notes
+
+### No Sample Data
+This version uses **only real MLB data** from the 2025 season. Sample/generated data has been removed. If the 2025 season hasn't started or you need offline access, you'll need to initialize the registry when you have network access.
+
+### Caching
+- Pitcher data is cached in `data/cache/`
+- Cache expires after 1 day
+- Use `POST /data/{id}/refresh` to force update
+
+### Rate Limiting
+When fetching many pitchers, pybaseball may be rate-limited by Baseball Savant. The initialization script handles this gracefully.
+
+---
+
+## 📚 Documentation
+
+- [API Documentation](http://localhost:8000/docs) - Interactive Swagger docs
+- [pybaseball Docs](https://github.com/jldbc/pybaseball) - Data source library
+- [Baseball Savant](https://baseballsavant.mlb.com/) - Official MLB Statcast
 
 ---
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
-
----
-
-## 🤝 Contributing
-
-Contributions welcome! Areas of interest:
-- Additional pitcher showcases
-- New visualization types
-- Performance optimizations
-- Bug fixes
-
----
-
-## 📧 Contact
-
-For questions or feedback about this project, please open an issue on GitHub.
+MIT License - see LICENSE file
 
 ---
 
 ## 🙏 Acknowledgments
 
-- **MLB** - For Statcast data
+- **MLB** - For Statcast data via Baseball Savant
 - **pybaseball** - For Python API wrapper
 - **Plotly** - For interactive visualizations
-- **matplotlib/seaborn** - For static charts
-- **SportRadar** - For live MLB data API
+- **FastAPI** - For the web framework
 
 ---
 
-## 📚 References
-
-- [pybaseball Documentation](https://github.com/jldbc/pybaseball)
-- [MLB Statcast Search](https://baseballsavant.mlb.com/statcast_search)
-- [Plotly Python Documentation](https://plotly.com/python/)
-- [Baseball Savant](https://baseballsavant.mlb.com/)
-- [SportRadar MLB API v8](https://developer.sportradar.com/baseball/reference/mlb-overview)
-
----
-
-**Last Updated:** December 2025
-
-**Version:** 0.2.0
+**Last Updated:** December 2025  
+**Version:** 1.0.0 - 2025 MLB Season Integration
