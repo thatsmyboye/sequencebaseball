@@ -52,6 +52,11 @@ test_output/
 showcase_portfolios/
 *.log
 
+# Data cache (generated at runtime, large files)
+data/cache/
+!data/.gitkeep
+# Note: pitcher_registry_*.json is NOT ignored - needed for deployment
+
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb

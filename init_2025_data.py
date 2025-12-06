@@ -37,11 +37,28 @@ def build_registry(min_pitches: int = 100, verbose: bool = True):
     data_dir.mkdir(exist_ok=True)
     cache_dir = data_dir / "cache"
     cache_dir.mkdir(exist_ok=True)
-    registry_file = data_dir / "pitcher_registry_2025.json"
+    # Determine which season to use
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+    season_year = current_year if current_month >= 4 else current_year - 1
     
-    # Season dates
-    season_start = "2025-03-27"
-    season_end = datetime.now().strftime("%Y-%m-%d")
+    registry_file = data_dir / f"pitcher_registry_{season_year}.json"
+    
+    # Season dates - Use 2024 if 2025 hasn't started yet
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+    
+    # If we're before April, use previous season
+    if current_month < 4:
+        season_year = current_year - 1 if current_year > 2024 else 2024
+    else:
+        season_year = current_year
+    
+    season_start = f"{season_year}-03-20"
+    season_end = f"{season_year}-11-01" if season_year < current_year else datetime.now().strftime("%Y-%m-%d")
+    
+    if verbose:
+        print(f"Using season: {season_year}")
     
     # MLB Teams
     MLB_TEAMS = {
@@ -133,7 +150,7 @@ def build_registry(min_pitches: int = 100, verbose: bool = True):
                 "pitch_types": pitch_types,
                 "total_pitches": len(pitcher_data),
                 "games": int(games),
-                "available_seasons": [2025]
+                "available_seasons": [season_year]
             }
         
         # Save registry

@@ -1,0 +1,2 @@
+# This file ensures the data directory exists for Docker builds
+# Pitcher registry and cache files will be created at runtime

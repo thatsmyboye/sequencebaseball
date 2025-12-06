@@ -59,7 +59,16 @@ STATIC_DIR = Path(__file__).parent / "static"
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 CACHE_DIR = DATA_DIR / "cache"
-REGISTRY_FILE = DATA_DIR / "pitcher_registry_2025.json"
+
+# Find the most recent registry file
+def get_registry_file():
+    """Find the most recent pitcher registry file."""
+    registry_files = list(DATA_DIR.glob("pitcher_registry_*.json"))
+    if registry_files:
+        return sorted(registry_files, reverse=True)[0]
+    return DATA_DIR / "pitcher_registry_2024.json"
+
+REGISTRY_FILE = get_registry_file()
 
 # MLB Teams
 MLB_TEAMS = {

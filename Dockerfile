@@ -23,10 +23,12 @@ RUN pip install --no-cache-dir -r requirements-railway.txt
 # Copy application code
 COPY api/ ./api/
 COPY pitch_viz.py sequence_visualizations.py ./
-COPY data/ ./data/
 COPY start.py run_api.py ./
 
-# Create cache directory
+# Copy data directory (contains .gitkeep at minimum)
+COPY data/ ./data/
+
+# Ensure cache directory exists
 RUN mkdir -p /app/data/cache
 
 # Expose port
