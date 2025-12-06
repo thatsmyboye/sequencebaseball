@@ -1497,12 +1497,22 @@
                     body: JSON.stringify(body)
                 });
 
-                const data = await res.json();
-                
                 if (!res.ok) {
-                    throw new Error(data.detail || 'Failed to load sequences');
+                    // Try to parse error response, fallback to status text
+                    let errorMessage = `Server error (${res.status})`;
+                    try {
+                        const errorData = await res.json();
+                        errorMessage = errorData.detail || errorMessage;
+                    } catch {
+                        // Response wasn't JSON
+                        errorMessage = res.status === 503 
+                            ? 'Data not available. Try a different pitcher.'
+                            : `Server error: ${res.statusText}`;
+                    }
+                    throw new Error(errorMessage);
                 }
                 
+                const data = await res.json();
                 renderSequenceTable(data);
             } catch (err) {
                 console.error('Failed to load sequences:', err);
@@ -1717,8 +1727,19 @@
                 });
 
                 if (!res.ok) {
-                    const err = await res.json();
-                    throw new Error(err.detail || 'Failed to load tunnel');
+                    // Try to parse error response, fallback to status text
+                    let errorMessage = `Server error (${res.status})`;
+                    try {
+                        const errorData = await res.json();
+                        errorMessage = errorData.detail || errorMessage;
+                    } catch {
+                        // Response wasn't JSON (could be HTML for tunnel)
+                        const text = await res.text();
+                        errorMessage = res.status === 503 
+                            ? 'Data not available for this pitcher.'
+                            : text.substring(0, 100) || `Server error: ${res.statusText}`;
+                    }
+                    throw new Error(errorMessage);
                 }
                 
                 const html = await res.text();
@@ -1742,12 +1763,23 @@
                 if (currentEndDate) url += `&end_date=${currentEndDate}`;
 
                 const res = await fetch(url);
-                const data = await res.json();
                 
                 if (!res.ok) {
-                    throw new Error(data.detail || 'Failed to load summary');
+                    // Try to parse error response, fallback to status text
+                    let errorMessage = `Server error (${res.status})`;
+                    try {
+                        const errorData = await res.json();
+                        errorMessage = errorData.detail || errorMessage;
+                    } catch {
+                        // Response wasn't JSON
+                        errorMessage = res.status === 503 
+                            ? 'Data not available for this pitcher.'
+                            : `Server error: ${res.statusText}`;
+                    }
+                    throw new Error(errorMessage);
                 }
                 
+                const data = await res.json();
                 renderSummary(data);
             } catch (err) {
                 console.error('Failed to load summary:', err);

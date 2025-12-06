@@ -1,7 +1,7 @@
 """
 Sequence Baseball REST API
 FastAPI endpoints for pitch sequencing analysis and visualizations
-Integrated with MLB 2025 season data via pybaseball
+Integrated with MLB 2024 season data via pybaseball
 
 Run with: uvicorn api.main:app --reload
 API docs: http://localhost:8000/docs
@@ -14,6 +14,7 @@ from enum import Enum
 import io
 import json
 import logging
+import traceback
 
 from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,13 +26,31 @@ import pandas as pd
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from pitch_viz import visualize_pitch_trajectories_3d, analyze_pitch_sequences
-from sequence_visualizations import (
-    create_sequence_visualization,
-    create_interactive_table,
-    CompositeScoreConfig,
-    get_available_chart_types
-)
+# Import visualization modules with error handling
+try:
+    from pitch_viz import visualize_pitch_trajectories_3d, analyze_pitch_sequences
+    PITCH_VIZ_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"pitch_viz import failed: {e}")
+    PITCH_VIZ_AVAILABLE = False
+    analyze_pitch_sequences = None
+    visualize_pitch_trajectories_3d = None
+
+try:
+    from sequence_visualizations import (
+        create_sequence_visualization,
+        create_interactive_table,
+        CompositeScoreConfig,
+        get_available_chart_types
+    )
+    SEQ_VIZ_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"sequence_visualizations import failed: {e}")
+    SEQ_VIZ_AVAILABLE = False
+    create_sequence_visualization = None
+    create_interactive_table = None
+    CompositeScoreConfig = None
+    get_available_chart_types = None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -170,11 +189,12 @@ def fetch_pitcher_data_live(pitcher_id: int, season: int = 2024) -> pd.DataFrame
         return data
         
     except ImportError:
-        logger.error("pybaseball not installed")
-        return pd.DataFrame()
+        logger.error("pybaseball not installed - cannot fetch live data")
+        return None
     except Exception as e:
         logger.error(f"Error fetching data: {e}")
-        return pd.DataFrame()
+        logger.error(traceback.format_exc())
+        return None
 
 
 def load_pitcher_data(pitcher_id: int, season: Optional[int] = 2024,
@@ -664,6 +684,13 @@ def generate_sequence_analysis(request: SequenceRequest):
     """
     Generate pitch sequence analysis.
     """
+    # Check if visualization module is available
+    if not PITCH_VIZ_AVAILABLE or analyze_pitch_sequences is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Pitch analysis module not available. Please try again later."
+        )
+    
     try:
         df = load_pitcher_data(
             request.pitcher_id,
@@ -684,7 +711,7 @@ def generate_sequence_analysis(request: SequenceRequest):
             sequence_position=request.sequence_position
         )
         
-        if len(seq_df) == 0:
+        if seq_df is None or len(seq_df) == 0:
             return SequenceAnalysisResponse(
                 pitcher_name=pitcher_info["name"],
                 batter_hand=batter_hand,
@@ -726,6 +753,8 @@ def generate_sequence_analysis(request: SequenceRequest):
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Sequence analysis error: {e}")
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Analysis error: {str(e)}")
 
 
@@ -874,19 +903,36 @@ def get_pitcher_summary(
 ):
     """Get summary statistics for a pitcher's data"""
     try:
+        logger.info(f"Getting summary for pitcher {pitcher_id}, season {season}")
+        
         df = load_pitcher_data(pitcher_id, season=season, start_date=start_date, end_date=end_date)
         pitcher_info = PITCHER_REGISTRY[pitcher_id]
         
-        pitch_counts = df['pitch_name'].value_counts().to_dict()
-        avg_velo_by_pitch = df.groupby('pitch_name')['release_speed'].mean().round(1).to_dict()
+        # Handle missing columns gracefully
+        pitch_counts = {}
+        avg_velo_by_pitch = {}
+        
+        if 'pitch_name' in df.columns:
+            pitch_counts = df['pitch_name'].value_counts().to_dict()
+        if 'pitch_name' in df.columns and 'release_speed' in df.columns:
+            avg_velo_by_pitch = df.groupby('pitch_name')['release_speed'].mean().round(1).to_dict()
         
         total_pitches = len(df)
-        swing_types = ['swinging_strike', 'foul', 'foul_tip', 'hit_into_play', 'swinging_strike_blocked']
-        swings = df[df['description'].isin(swing_types)]
-        whiffs = df[df['description'] == 'swinging_strike']
-        whiff_rate = round(len(whiffs) / len(swings) * 100, 1) if len(swings) > 0 else 0
+        whiff_rate = 0
         
-        df['game_date'] = pd.to_datetime(df['game_date'])
+        if 'description' in df.columns:
+            swing_types = ['swinging_strike', 'foul', 'foul_tip', 'hit_into_play', 'swinging_strike_blocked']
+            swings = df[df['description'].isin(swing_types)]
+            whiffs = df[df['description'] == 'swinging_strike']
+            whiff_rate = round(len(whiffs) / len(swings) * 100, 1) if len(swings) > 0 else 0
+        
+        date_range = {"start": None, "end": None}
+        if 'game_date' in df.columns:
+            df['game_date'] = pd.to_datetime(df['game_date'])
+            date_range = {
+                "start": str(df['game_date'].min().date()),
+                "end": str(df['game_date'].max().date())
+            }
         
         return {
             "pitcher_id": pitcher_id,
@@ -897,17 +943,16 @@ def get_pitcher_summary(
             "pitch_arsenal": pitch_counts,
             "avg_velocity_by_pitch": avg_velo_by_pitch,
             "overall_whiff_rate": whiff_rate,
-            "available_seasons": pitcher_info.get("available_seasons", [2025]),
-            "date_range": {
-                "start": str(df['game_date'].min().date()),
-                "end": str(df['game_date'].max().date())
-            }
+            "available_seasons": pitcher_info.get("available_seasons", [2024]),
+            "date_range": date_range
         }
     
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Summary error for pitcher {pitcher_id}: {e}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Error loading pitcher data: {str(e)}")
 
 
 @app.get("/data/{pitcher_id}/movement", tags=["Data"])

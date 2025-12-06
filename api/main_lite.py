@@ -376,8 +376,6 @@ def get_team_pitchers(team: str):
 @app.get("/data/{pitcher_id}/summary", tags=["Data"])
 def get_pitcher_summary(pitcher_id: int, season: int = 2024):
     """Get pitcher summary statistics"""
-    from pitch_viz import analyze_pitch_sequences
-    
     registry = get_pitcher_registry()
     if pitcher_id not in registry:
         raise HTTPException(status_code=404, detail="Pitcher not found")
@@ -387,20 +385,29 @@ def get_pitcher_summary(pitcher_id: int, season: int = 2024):
     try:
         df = load_pitcher_data(pitcher_id, season)
         
-        pitch_counts = df['pitch_name'].value_counts().to_dict()
-        avg_velo = df.groupby('pitch_name')['release_speed'].mean().round(1).to_dict()
+        # Handle missing columns gracefully
+        pitch_counts = {}
+        avg_velo = {}
+        
+        if 'pitch_name' in df.columns:
+            pitch_counts = df['pitch_name'].value_counts().to_dict()
+        if 'pitch_name' in df.columns and 'release_speed' in df.columns:
+            avg_velo = df.groupby('pitch_name')['release_speed'].mean().round(1).to_dict()
         
         return {
             "pitcher_id": pitcher_id,
             "pitcher_name": info["name"],
             "team": info["team"],
+            "season": season,
             "total_pitches": len(df),
             "pitch_arsenal": pitch_counts,
-            "avg_velocity_by_pitch": avg_velo
+            "avg_velocity_by_pitch": avg_velo,
+            "available_seasons": info.get("available_seasons", [2024])
         }
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error getting summary for pitcher {pitcher_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -413,7 +420,12 @@ def generate_sequences(
     season: int = Body(2024)
 ):
     """Generate sequence analysis"""
-    from pitch_viz import analyze_pitch_sequences
+    # Import with error handling
+    try:
+        from pitch_viz import analyze_pitch_sequences
+    except ImportError as e:
+        logger.error(f"Failed to import pitch_viz: {e}")
+        raise HTTPException(status_code=503, detail="Pitch analysis module not available")
     
     registry = get_pitcher_registry()
     if pitcher_id not in registry:
@@ -432,8 +444,8 @@ def generate_sequences(
             success_metric='overall'
         )
         
-        if len(seq_df) == 0:
-            return {"pitcher_name": info["name"], "sequences": [], "total_sequences": 0}
+        if seq_df is None or len(seq_df) == 0:
+            return {"pitcher_name": info["name"], "sequences": [], "total_sequences": 0, "season": season}
         
         sequences = [
             {
@@ -450,11 +462,13 @@ def generate_sequences(
         return {
             "pitcher_name": info["name"],
             "sequences": sequences,
-            "total_sequences": len(seq_df)
+            "total_sequences": len(seq_df),
+            "season": season
         }
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error generating sequences for pitcher {pitcher_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -467,7 +481,12 @@ def generate_tunnel(
     season: int = Body(2024)
 ):
     """Generate 3D tunnel visualization"""
-    from pitch_viz import visualize_pitch_trajectories_3d
+    # Import with error handling
+    try:
+        from pitch_viz import visualize_pitch_trajectories_3d
+    except ImportError as e:
+        logger.error(f"Failed to import pitch_viz: {e}")
+        raise HTTPException(status_code=503, detail="Visualization module not available")
     
     registry = get_pitcher_registry()
     if pitcher_id not in registry:
@@ -490,6 +509,7 @@ def generate_tunnel(
     except HTTPException:
         raise
     except Exception as e:
+        logger.error(f"Error generating tunnel for pitcher {pitcher_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
