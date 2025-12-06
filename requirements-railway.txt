@@ -1,0 +1,25 @@
+# Optimized requirements for Railway deployment
+# Target: < 512MB memory usage
+
+# API Framework (required)
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# Data processing (required, minimal versions)
+pandas==2.1.3
+numpy==1.26.2
+
+# Visualization - Plotly only (lighter than matplotlib+seaborn)
+plotly==5.18.0
+
+# Scientific - for trajectory calculations
+scipy==1.11.4
+
+# Optional: pybaseball for live data (adds ~100MB)
+# Comment out if using pre-cached data only
+pybaseball==2.2.7
+
+# Note: matplotlib and seaborn removed to save ~200MB
+# If you need static charts, uncomment:
+# matplotlib==3.8.2
+# seaborn==0.13.0
