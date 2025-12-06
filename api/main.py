@@ -144,19 +144,15 @@ def load_pitcher_registry() -> Dict[int, Dict]:
         return {}
 
 
-def fetch_pitcher_data_live(pitcher_id: int, season: int = 2025) -> pd.DataFrame:
+def fetch_pitcher_data_live(pitcher_id: int, season: int = 2024) -> pd.DataFrame:
     """Fetch pitcher data from pybaseball (live API call)."""
     try:
         from pybaseball import statcast_pitcher
         from datetime import datetime
         
         # Season date ranges
-        if season == 2025:
-            start_date = "2025-03-27"
-            end_date = datetime.now().strftime("%Y-%m-%d")
-        else:
-            start_date = f"{season}-03-20"
-            end_date = f"{season}-10-15"
+        start_date = f"{season}-03-20"
+        end_date = f"{season}-10-15"
         
         logger.info(f"Fetching data for pitcher {pitcher_id}, season {season}")
         data = statcast_pitcher(start_date, end_date, pitcher_id)
@@ -181,7 +177,7 @@ def fetch_pitcher_data_live(pitcher_id: int, season: int = 2025) -> pd.DataFrame
         return pd.DataFrame()
 
 
-def load_pitcher_data(pitcher_id: int, season: Optional[int] = 2025,
+def load_pitcher_data(pitcher_id: int, season: Optional[int] = 2024,
                       start_date: Optional[str] = None,
                       end_date: Optional[str] = None) -> pd.DataFrame:
     """
@@ -194,7 +190,7 @@ def load_pitcher_data(pitcher_id: int, season: Optional[int] = 2025,
         )
     
     pitcher_info = PITCHER_REGISTRY[pitcher_id]
-    season = season or 2025
+    season = season or 2024
     
     # Check cache first
     cache_file = CACHE_DIR / f"pitcher_{pitcher_id}_{season}.csv"
@@ -295,7 +291,7 @@ class TunnelRequest(BaseModel):
     pitch_types: List[str] = Field(..., description="List of pitch types to visualize")
     batter_hand: Optional[BatterHand] = Field(None, description="Filter by batter handedness")
     max_pitches_per_type: int = Field(30, ge=5, le=100, description="Max pitches per type")
-    season: Optional[int] = Field(2025, ge=2015, le=2025, description="Season year")
+    season: Optional[int] = Field(2024, ge=2015, le=2025, description="Season year")
     start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
 
@@ -307,7 +303,7 @@ class SequenceRequest(BaseModel):
     chart_type: ChartType = Field(ChartType.composite_score, description="Visualization type")
     top_n: int = Field(10, ge=3, le=20, description="Number of top sequences")
     sequence_position: str = Field("any", description="Sequence position: 'any', 'start', or 'end'")
-    season: Optional[int] = Field(2025, ge=2015, le=2025, description="Season year")
+    season: Optional[int] = Field(2024, ge=2015, le=2025, description="Season year")
     start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
 
@@ -342,7 +338,7 @@ class TableRequest(BaseModel):
     batter_hand: Optional[BatterHand] = Field(None, description="Filter by batter handedness")
     min_sample_size: int = Field(10, ge=1, le=100, description="Minimum sample size")
     top_n: int = Field(10, ge=3, le=20, description="Number of top sequences")
-    season: Optional[int] = Field(2025, ge=2015, le=2025, description="Season year")
+    season: Optional[int] = Field(2024, ge=2015, le=2025, description="Season year")
     start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
     end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
 
@@ -367,7 +363,7 @@ def api_info():
         "status": "ok",
         "api": "Sequence Baseball API",
         "version": "1.0.0",
-        "season": "2025",
+        "season": "2024",
         "features": ["2025 season data", "live data fetching", "team search", "alphabetized results"],
         "pitcher_count": len(PITCHER_REGISTRY),
         "docs": "/docs"
@@ -406,7 +402,7 @@ def list_pitchers(
             position=info["position"],
             throws=info["throws"],
             pitch_types=info.get("pitch_types", []),
-            available_seasons=info.get("available_seasons", [2025]),
+            available_seasons=info.get("available_seasons", [2024]),
             total_pitches=info.get("total_pitches")
         )
         for pid, info in paginated
@@ -542,7 +538,7 @@ def get_team_pitchers(team: str):
                 position=info["position"],
                 throws=info["throws"],
                 pitch_types=info.get("pitch_types", []),
-                available_seasons=info.get("available_seasons", [2025]),
+                available_seasons=info.get("available_seasons", [2024]),
                 total_pitches=info.get("total_pitches")
             ))
     
@@ -579,7 +575,7 @@ def get_pitcher_seasons(pitcher_id: int):
         raise HTTPException(status_code=404, detail=f"Pitcher {pitcher_id} not found")
     
     info = PITCHER_REGISTRY[pitcher_id]
-    seasons = info.get("available_seasons", [2025])
+    seasons = info.get("available_seasons", [2024])
     
     return {
         "pitcher_id": pitcher_id,
@@ -872,7 +868,7 @@ def generate_sequence_chart_image(
 @app.get("/data/{pitcher_id}/summary", tags=["Data"])
 def get_pitcher_summary(
     pitcher_id: int,
-    season: Optional[int] = Query(2025, ge=2015, le=2025, description="Season year"),
+    season: Optional[int] = Query(2024, ge=2015, le=2025, description="Season year"),
     start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)")
 ):
@@ -951,7 +947,7 @@ def get_movement_profile(
 # =============================================================================
 
 @app.post("/data/{pitcher_id}/refresh", tags=["Data"])
-def refresh_pitcher_data(pitcher_id: int, season: int = 2025):
+def refresh_pitcher_data(pitcher_id: int, season: int = 2024):
     """
     Force refresh pitcher data from MLB API.
     Use this to get the latest data for a pitcher.

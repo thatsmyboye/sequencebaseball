@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Sequence Baseball API",
-    description="REST API for MLB pitch sequencing analysis - 2025 Season (Lite)",
+    description="REST API for MLB pitch sequencing analysis - 2024 Season (Lite)",
     version="1.0.0-lite",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -126,7 +126,7 @@ def get_pitcher_registry() -> Dict[int, Dict]:
     return _PITCHER_REGISTRY
 
 
-def load_pitcher_data(pitcher_id: int, season: int = 2025) -> pd.DataFrame:
+def load_pitcher_data(pitcher_id: int, season: int = 2024) -> pd.DataFrame:
     """Load pitcher data from cache or fetch live."""
     registry = get_pitcher_registry()
     
@@ -176,7 +176,7 @@ class PitcherInfo(BaseModel):
     position: str
     throws: str
     pitch_types: List[str] = []
-    available_seasons: List[int] = [2025]
+    available_seasons: List[int] = [2024]
 
 
 class SearchResponse(BaseModel):
@@ -242,7 +242,7 @@ def list_pitchers(
             position=info["position"],
             throws=info["throws"],
             pitch_types=info.get("pitch_types", []),
-            available_seasons=info.get("available_seasons", [2025])
+            available_seasons=info.get("available_seasons", [2024])
         )
         for pid, info in paginated
     ]
@@ -323,7 +323,7 @@ def get_pitcher(pitcher_id: int):
         position=info["position"],
         throws=info["throws"],
         pitch_types=info.get("pitch_types", []),
-        available_seasons=info.get("available_seasons", [2025])
+        available_seasons=info.get("available_seasons", [2024])
     )
 
 
@@ -374,7 +374,7 @@ def get_team_pitchers(team: str):
 
 
 @app.get("/data/{pitcher_id}/summary", tags=["Data"])
-def get_pitcher_summary(pitcher_id: int, season: int = 2025):
+def get_pitcher_summary(pitcher_id: int, season: int = 2024):
     """Get pitcher summary statistics"""
     from pitch_viz import analyze_pitch_sequences
     
@@ -410,7 +410,7 @@ def generate_sequences(
     batter_hand: Optional[str] = Body(None),
     min_sample_size: int = Body(10),
     top_n: int = Body(15),
-    season: int = Body(2025)
+    season: int = Body(2024)
 ):
     """Generate sequence analysis"""
     from pitch_viz import analyze_pitch_sequences
@@ -464,7 +464,7 @@ def generate_tunnel(
     pitch_types: List[str] = Body(...),
     batter_hand: Optional[str] = Body(None),
     max_pitches_per_type: int = Body(30),
-    season: int = Body(2025)
+    season: int = Body(2024)
 ):
     """Generate 3D tunnel visualization"""
     from pitch_viz import visualize_pitch_trajectories_3d

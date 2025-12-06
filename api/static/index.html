@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sequence Baseball - 2025 MLB Pitch Analysis</title>
+    <title>Sequence Baseball - 2024 MLB Pitch Analysis</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -945,7 +945,7 @@
             <div class="logo">
                 <div class="logo-icon">⚾</div>
                 <span class="logo-text">Sequence Baseball</span>
-                <span class="season-badge">2025</span>
+                <span class="season-badge">2024</span>
             </div>
             <div class="controls">
                 <div class="pitcher-search" id="pitcher-search">
@@ -982,7 +982,7 @@
             <div class="filter-item">
                 <label for="season-select">Season:</label>
                 <select class="filter-select" id="season-select">
-                    <option value="2025" selected>2025</option>
+                    <option value="2024" selected>2024</option>
                 </select>
                 <span class="season-note" id="season-note"></span>
             </div>
@@ -1064,7 +1064,7 @@
         let currentPitcher = null;
         let currentBatterHand = '';
         let currentSequencePosition = 'any';
-        let currentSeason = 2025;
+        let currentSeason = 2024;
         let currentStartDate = null;
         let currentEndDate = null;
         let pitcherData = {};
@@ -1201,16 +1201,16 @@
 
             filterBar.classList.remove('hidden');
             
-            const seasons = currentPitcher.available_seasons || [2025];
+            const seasons = currentPitcher.available_seasons || [2024];
             
             // Build options (most recent first)
             let optionsHTML = '';
             seasons.slice().sort((a, b) => b - a).forEach(season => {
-                optionsHTML += `<option value="${season}"${season === 2025 ? ' selected' : ''}>${season}</option>`;
+                optionsHTML += `<option value="${season}"${season === 2024 ? ' selected' : ''}>${season}</option>`;
             });
             
             select.innerHTML = optionsHTML;
-            currentSeason = 2025;
+            currentSeason = 2024;
         }
 
         // Select a pitcher
@@ -1242,7 +1242,7 @@
             highlightedIndex = -1;
             
             // Reset filters
-            currentSeason = 2025;
+            currentSeason = 2024;
             currentStartDate = null;
             currentEndDate = null;
             document.getElementById('start-date').value = '';
@@ -1255,7 +1255,7 @@
         // Clear pitcher selection
         function clearPitcherSelection() {
             currentPitcher = null;
-            currentSeason = 2025;
+            currentSeason = 2024;
             currentStartDate = null;
             currentEndDate = null;
             
@@ -1420,7 +1420,7 @@
 
             // Season select
             document.getElementById('season-select').addEventListener('change', (e) => {
-                currentSeason = e.target.value ? parseInt(e.target.value) : 2025;
+                currentSeason = e.target.value ? parseInt(e.target.value) : 2024;
                 
                 const startDate = document.getElementById('start-date');
                 const endDate = document.getElementById('end-date');
@@ -1766,7 +1766,7 @@
             const totalPitches = data.total_pitches;
             const arsenal = data.pitch_arsenal || {};
             const velocities = data.avg_velocity_by_pitch || {};
-            const availableSeasons = data.available_seasons || [2025];
+            const availableSeasons = data.available_seasons || [2024];
 
             const sortedArsenal = Object.entries(arsenal)
                 .sort((a, b) => b[1] - a[1]);
@@ -1774,7 +1774,7 @@
 
             const seasonsDisplay = availableSeasons.length > 0 
                 ? `${Math.min(...availableSeasons)} - ${Math.max(...availableSeasons)} (${availableSeasons.length} seasons)`
-                : '2025';
+                : '2024';
 
             const html = `
                 <div class="summary-grid">
