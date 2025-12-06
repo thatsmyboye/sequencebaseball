@@ -483,9 +483,16 @@ def analyze_pitch_sequences(
     results_df : pd.DataFrame
         DataFrame with top sequences and their success metrics
     """
+    # Validate required columns exist
+    required_cols = ['pitch_name', 'game_date', 'at_bat_number', 'pitch_number', 'description']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        print(f"Warning: Missing columns {missing_cols}, returning empty DataFrame")
+        return pd.DataFrame()
+    
     # Filter by batter hand if specified
     filtered_df = df.copy()
-    if batter_hand:
+    if batter_hand and 'stand' in filtered_df.columns:
         filtered_df = filtered_df[filtered_df['stand'] == batter_hand]
 
     # Create at-bat identifier
@@ -527,8 +534,19 @@ def analyze_pitch_sequences(
             # Get outcome of final pitch in sequence
             final_pitch = ab_group.iloc[i + sequence_length - 1]
 
-            # Determine if pitch was in zone
-            in_zone = final_pitch['zone'] <= 9
+            # Determine if pitch was in zone (handle missing 'zone' column)
+            if 'zone' in final_pitch.index and pd.notna(final_pitch['zone']):
+                try:
+                    in_zone = float(final_pitch['zone']) <= 9
+                except (ValueError, TypeError):
+                    in_zone = True  # Default to in-zone if can't determine
+            else:
+                # Estimate from plate location if available
+                if 'plate_x' in final_pitch.index and 'plate_z' in final_pitch.index:
+                    px, pz = final_pitch['plate_x'], final_pitch['plate_z']
+                    in_zone = abs(px) <= 0.83 and 1.5 <= pz <= 3.5
+                else:
+                    in_zone = True  # Default assumption
 
             # Determine if swing
             swing = final_pitch['description'] in [
@@ -539,10 +557,15 @@ def analyze_pitch_sequences(
             # Determine outcomes
             whiff = final_pitch['description'] == 'swinging_strike'
             chase = (not in_zone) and swing
-            weak_contact = (
-                final_pitch['description'] == 'hit_into_play' and
-                final_pitch['events'] in ['field_out', 'force_out', 'grounded_into_double_play']
-            )
+            
+            # Check for weak contact (handle missing 'events' column)
+            weak_contact = False
+            if final_pitch['description'] == 'hit_into_play':
+                if 'events' in final_pitch.index and pd.notna(final_pitch['events']):
+                    weak_contact = final_pitch['events'] in ['field_out', 'force_out', 'grounded_into_double_play', 'double_play', 'sac_fly', 'fielders_choice']
+                else:
+                    # If no events column, estimate weak contact from other indicators
+                    weak_contact = True  # Assume hit_into_play is weak contact as fallback
 
             sequences.append({
                 'sequence': sequence,

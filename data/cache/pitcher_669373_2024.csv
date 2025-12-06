@@ -1,86 +1,94 @@
-pitch_type,pitch_name,game_date,release_speed,release_spin_rate,pfx_x,pfx_z,plate_x,plate_z,zone,description,balls,strikes,stand,p_throws,at_bat_number,pitch_number,pitcher,player_name,release_pos_x,release_pos_y,release_pos_z,inning,outs_when_up
-FF,4-Seam Fastball,2024-04-01,95.8,2389,0.52,1.45,-0.12,2.85,5,called_strike,0,1,R,L,1,1,669373,Tarik Skubal,-2.1,54.5,6.0,1,0
-SL,Slider,2024-04-01,86.4,2567,-1.34,0.28,0.45,2.12,6,swinging_strike,0,2,R,L,1,2,669373,Tarik Skubal,-2.1,54.5,6.0,1,0
-FF,4-Seam Fastball,2024-04-01,96.2,2401,0.48,1.51,-0.34,3.21,2,ball,1,2,R,L,1,3,669373,Tarik Skubal,-2.1,54.5,6.0,1,0
-CH,Changeup,2024-04-01,85.1,1789,1.12,0.67,0.23,1.98,8,hit_into_play,1,2,R,L,1,4,669373,Tarik Skubal,-2.1,54.5,6.0,1,0
-FF,4-Seam Fastball,2024-04-01,95.6,2378,0.56,1.42,0.17,2.67,5,foul,0,1,L,L,2,1,669373,Tarik Skubal,-2.1,54.5,6.0,1,1
-SL,Slider,2024-04-01,85.9,2534,-1.41,0.25,-0.67,2.34,7,swinging_strike,0,2,L,L,2,2,669373,Tarik Skubal,-2.1,54.5,6.0,1,1
-FF,4-Seam Fastball,2024-04-01,96.4,2412,0.51,1.48,0.28,3.45,2,ball,1,2,L,L,2,3,669373,Tarik Skubal,-2.1,54.5,6.0,1,1
-CU,Curveball,2024-04-01,78.9,2645,-0.92,-1.18,-0.34,2.12,4,hit_into_play,1,2,L,L,2,4,669373,Tarik Skubal,-2.1,54.5,6.0,1,1
-FF,4-Seam Fastball,2024-04-01,95.9,2395,0.49,1.44,-0.15,2.95,5,called_strike,0,1,R,L,3,1,669373,Tarik Skubal,-2.1,54.5,6.0,1,2
-CH,Changeup,2024-04-01,84.8,1802,1.08,0.71,0.45,1.78,13,ball,1,1,R,L,3,2,669373,Tarik Skubal,-2.1,54.5,6.0,1,2
-SL,Slider,2024-04-01,86.1,2556,-1.38,0.31,-0.56,2.45,7,swinging_strike,1,2,R,L,3,3,669373,Tarik Skubal,-2.1,54.5,6.0,1,2
-FF,4-Seam Fastball,2024-04-01,96.1,2403,0.54,1.47,0.23,3.12,2,foul,1,2,R,L,3,4,669373,Tarik Skubal,-2.1,54.5,6.0,1,2
-SL,Slider,2024-04-01,85.7,2523,-1.45,0.27,-0.89,2.01,7,swinging_strike,1,2,R,L,3,5,669373,Tarik Skubal,-2.1,54.5,6.0,1,2
-FF,4-Seam Fastball,2024-04-06,96.0,2387,0.47,1.49,-0.17,2.78,5,called_strike,0,1,L,L,4,1,669373,Tarik Skubal,-2.1,54.5,6.0,2,0
-CH,Changeup,2024-04-06,85.3,1815,1.15,0.65,0.34,2.23,6,foul,0,2,L,L,4,2,669373,Tarik Skubal,-2.1,54.5,6.0,2,0
-SL,Slider,2024-04-06,86.3,2578,-1.32,0.29,-0.78,2.89,7,ball,1,2,L,L,4,3,669373,Tarik Skubal,-2.1,54.5,6.0,2,0
-FF,4-Seam Fastball,2024-04-06,96.5,2418,0.50,1.52,0.12,3.34,2,hit_into_play,1,2,L,L,4,4,669373,Tarik Skubal,-2.1,54.5,6.0,2,0
-FF,4-Seam Fastball,2024-04-06,95.7,2381,0.53,1.43,-0.28,2.67,5,swinging_strike,0,1,R,L,5,1,669373,Tarik Skubal,-2.1,54.5,6.0,2,1
-SL,Slider,2024-04-06,86.5,2589,-1.37,0.26,0.45,2.12,6,called_strike,0,2,R,L,5,2,669373,Tarik Skubal,-2.1,54.5,6.0,2,1
-CU,Curveball,2024-04-06,78.5,2656,-0.89,-1.22,-0.56,1.45,13,ball,1,2,R,L,5,3,669373,Tarik Skubal,-2.1,54.5,6.0,2,1
-FF,4-Seam Fastball,2024-04-06,96.3,2408,0.46,1.50,0.34,3.56,11,ball,2,2,R,L,5,4,669373,Tarik Skubal,-2.1,54.5,6.0,2,1
-SL,Slider,2024-04-06,85.8,2545,-1.43,0.30,-0.12,2.34,5,swinging_strike,2,2,R,L,5,5,669373,Tarik Skubal,-2.1,54.5,6.0,2,1
-FF,4-Seam Fastball,2024-04-06,95.8,2392,0.55,1.46,-0.21,2.89,5,foul,0,1,L,L,6,1,669373,Tarik Skubal,-2.1,54.5,6.0,2,2
-CH,Changeup,2024-04-06,84.9,1798,1.11,0.68,0.45,2.01,8,called_strike,0,2,L,L,6,2,669373,Tarik Skubal,-2.1,54.5,6.0,2,2
-SL,Slider,2024-04-06,86.2,2567,-1.36,0.28,-0.67,2.45,7,swinging_strike,0,2,L,L,6,3,669373,Tarik Skubal,-2.1,54.5,6.0,2,2
-FF,4-Seam Fastball,2024-04-11,96.1,2398,0.48,1.48,0.17,2.73,5,called_strike,0,1,R,L,7,1,669373,Tarik Skubal,-2.1,54.5,6.0,3,0
-SL,Slider,2024-04-11,86.4,2579,-1.35,0.27,-0.45,2.23,7,ball,1,1,R,L,7,2,669373,Tarik Skubal,-2.1,54.5,6.0,3,0
-FF,4-Seam Fastball,2024-04-11,95.9,2385,0.52,1.44,-0.34,3.12,2,foul,1,2,R,L,7,3,669373,Tarik Skubal,-2.1,54.5,6.0,3,0
-CU,Curveball,2024-04-11,79.1,2667,-0.87,-1.25,0.67,1.89,8,swinging_strike,1,2,R,L,7,4,669373,Tarik Skubal,-2.1,54.5,6.0,3,0
-FF,4-Seam Fastball,2024-04-11,95.7,2379,0.50,1.45,-0.15,2.81,5,called_strike,0,1,L,L,8,1,669373,Tarik Skubal,-2.1,54.5,6.0,3,1
-SL,Slider,2024-04-11,86.6,2590,-1.40,0.24,0.34,2.45,6,foul,0,2,L,L,8,2,669373,Tarik Skubal,-2.1,54.5,6.0,3,1
-CH,Changeup,2024-04-11,85.2,1823,1.09,0.70,-0.56,2.12,4,hit_into_play,0,2,L,L,8,3,669373,Tarik Skubal,-2.1,54.5,6.0,3,1
-FF,4-Seam Fastball,2024-04-11,96.2,2405,0.47,1.51,0.23,3.45,2,ball,1,0,R,L,9,1,669373,Tarik Skubal,-2.1,54.5,6.0,3,2
-CU,Curveball,2024-04-11,78.7,2634,-0.91,-1.19,-0.67,1.67,13,ball,2,0,R,L,9,2,669373,Tarik Skubal,-2.1,54.5,6.0,3,2
-SL,Slider,2024-04-11,86.0,2556,-1.42,0.29,0.45,2.34,6,swinging_strike,2,1,R,L,9,3,669373,Tarik Skubal,-2.1,54.5,6.0,3,2
-FF,4-Seam Fastball,2024-04-11,95.8,2391,0.54,1.43,-0.28,2.95,5,foul,2,2,R,L,9,4,669373,Tarik Skubal,-2.1,54.5,6.0,3,2
-SL,Slider,2024-04-11,85.5,2523,-1.46,0.26,0.78,2.01,6,swinging_strike,2,2,R,L,9,5,669373,Tarik Skubal,-2.1,54.5,6.0,3,2
-FF,4-Seam Fastball,2024-04-16,95.6,2383,0.51,1.47,-0.17,2.78,5,called_strike,0,1,L,L,10,1,669373,Tarik Skubal,-2.1,54.5,6.0,4,0
-CH,Changeup,2024-04-16,85.4,1834,1.14,0.66,0.28,2.34,6,swinging_strike,0,2,L,L,10,2,669373,Tarik Skubal,-2.1,54.5,6.0,4,0
-SL,Slider,2024-04-16,86.4,2578,-1.33,0.30,-0.89,2.67,7,ball,1,2,L,L,10,3,669373,Tarik Skubal,-2.1,54.5,6.0,4,0
-FF,4-Seam Fastball,2024-04-16,96.4,2415,0.49,1.52,0.34,3.23,2,foul,1,2,L,L,10,4,669373,Tarik Skubal,-2.1,54.5,6.0,4,0
-CU,Curveball,2024-04-16,79.0,2656,-0.88,-1.21,-0.45,2.12,4,hit_into_play,1,2,L,L,10,5,669373,Tarik Skubal,-2.1,54.5,6.0,4,0
-FF,4-Seam Fastball,2024-04-16,96.0,2396,0.53,1.45,-0.23,2.89,5,foul,0,1,R,L,11,1,669373,Tarik Skubal,-2.1,54.5,6.0,4,1
-SL,Slider,2024-04-16,86.1,2567,-1.39,0.28,0.56,2.23,6,called_strike,0,2,R,L,11,2,669373,Tarik Skubal,-2.1,54.5,6.0,4,1
-CU,Curveball,2024-04-16,78.8,2645,-0.90,-1.17,-0.67,1.78,13,ball,1,2,R,L,11,3,669373,Tarik Skubal,-2.1,54.5,6.0,4,1
-FF,4-Seam Fastball,2024-04-16,96.3,2407,0.46,1.49,0.12,3.45,2,swinging_strike,1,2,R,L,11,4,669373,Tarik Skubal,-2.1,54.5,6.0,4,1
-FF,4-Seam Fastball,2024-04-16,95.7,2384,0.55,1.42,-0.17,2.73,5,called_strike,0,1,L,L,12,1,669373,Tarik Skubal,-2.1,54.5,6.0,4,2
-SL,Slider,2024-04-16,86.5,2589,-1.36,0.26,0.45,2.45,6,swinging_strike,0,2,L,L,12,2,669373,Tarik Skubal,-2.1,54.5,6.0,4,2
-CH,Changeup,2024-04-16,85.1,1812,1.10,0.69,-0.78,2.12,7,hit_into_play,0,2,L,L,12,3,669373,Tarik Skubal,-2.1,54.5,6.0,4,2
-FF,4-Seam Fastball,2024-04-21,96.1,2399,0.48,1.48,0.21,2.81,5,foul,0,1,R,L,13,1,669373,Tarik Skubal,-2.1,54.5,6.0,5,0
-SL,Slider,2024-04-21,85.9,2545,-1.44,0.29,-0.34,2.34,7,called_strike,0,2,R,L,13,2,669373,Tarik Skubal,-2.1,54.5,6.0,5,0
-CU,Curveball,2024-04-21,79.2,2678,-0.86,-1.23,0.56,1.89,8,swinging_strike,0,2,R,L,13,3,669373,Tarik Skubal,-2.1,54.5,6.0,5,0
-FF,4-Seam Fastball,2024-04-21,95.8,2387,0.52,1.44,-0.15,2.95,5,called_strike,0,1,L,L,14,1,669373,Tarik Skubal,-2.1,54.5,6.0,5,1
-CH,Changeup,2024-04-21,85.3,1823,1.13,0.67,0.34,2.23,6,foul,0,2,L,L,14,2,669373,Tarik Skubal,-2.1,54.5,6.0,5,1
-SL,Slider,2024-04-21,86.3,2567,-1.38,0.25,-0.67,2.56,7,ball,1,2,L,L,14,3,669373,Tarik Skubal,-2.1,54.5,6.0,5,1
-FF,4-Seam Fastball,2024-04-21,96.5,2420,0.47,1.51,0.23,3.34,2,hit_into_play,1,2,L,L,14,4,669373,Tarik Skubal,-2.1,54.5,6.0,5,1
-FF,4-Seam Fastball,2024-04-21,95.6,2378,0.54,1.43,-0.28,2.67,5,swinging_strike,0,1,R,L,15,1,669373,Tarik Skubal,-2.1,54.5,6.0,5,2
-SL,Slider,2024-04-21,86.6,2590,-1.35,0.27,0.45,2.12,6,foul,0,2,R,L,15,2,669373,Tarik Skubal,-2.1,54.5,6.0,5,2
-CU,Curveball,2024-04-21,78.6,2656,-0.92,-1.20,-0.56,1.67,13,ball,1,2,R,L,15,3,669373,Tarik Skubal,-2.1,54.5,6.0,5,2
-FF,4-Seam Fastball,2024-04-21,96.2,2403,0.49,1.50,0.12,3.56,11,ball,2,2,R,L,15,4,669373,Tarik Skubal,-2.1,54.5,6.0,5,2
-SL,Slider,2024-04-21,85.7,2534,-1.47,0.30,-0.23,2.45,7,swinging_strike,2,2,R,L,15,5,669373,Tarik Skubal,-2.1,54.5,6.0,5,2
-FF,4-Seam Fastball,2024-04-26,95.9,2390,0.51,1.46,-0.17,2.78,5,called_strike,0,1,L,L,16,1,669373,Tarik Skubal,-2.1,54.5,6.0,6,0
-CH,Changeup,2024-04-26,85.4,1845,1.16,0.66,0.34,2.34,6,swinging_strike,0,2,L,L,16,2,669373,Tarik Skubal,-2.1,54.5,6.0,6,0
-SL,Slider,2024-04-26,86.2,2567,-1.41,0.28,-0.78,2.89,7,ball,1,2,L,L,16,3,669373,Tarik Skubal,-2.1,54.5,6.0,6,0
-FF,4-Seam Fastball,2024-04-26,96.4,2412,0.48,1.52,0.23,3.12,2,foul,1,2,L,L,16,4,669373,Tarik Skubal,-2.1,54.5,6.0,6,0
-CU,Curveball,2024-04-26,79.1,2667,-0.87,-1.22,-0.45,2.01,4,hit_into_play,1,2,L,L,16,5,669373,Tarik Skubal,-2.1,54.5,6.0,6,0
-FF,4-Seam Fastball,2024-04-26,95.7,2381,0.53,1.44,-0.23,2.73,5,foul,0,1,R,L,17,1,669373,Tarik Skubal,-2.1,54.5,6.0,6,1
-SL,Slider,2024-04-26,86.4,2578,-1.37,0.26,0.56,2.23,6,called_strike,0,2,R,L,17,2,669373,Tarik Skubal,-2.1,54.5,6.0,6,1
-CU,Curveball,2024-04-26,78.8,2645,-0.90,-1.18,-0.67,1.78,13,ball,1,2,R,L,17,3,669373,Tarik Skubal,-2.1,54.5,6.0,6,1
-FF,4-Seam Fastball,2024-04-26,96.1,2398,0.46,1.49,0.12,3.45,2,swinging_strike,1,2,R,L,17,4,669373,Tarik Skubal,-2.1,54.5,6.0,6,1
-FF,4-Seam Fastball,2024-04-26,96.0,2395,0.55,1.43,-0.15,2.89,5,called_strike,0,1,L,L,18,1,669373,Tarik Skubal,-2.1,54.5,6.0,6,2
-SL,Slider,2024-04-26,86.1,2567,-1.40,0.29,0.45,2.45,6,swinging_strike,0,2,L,L,18,2,669373,Tarik Skubal,-2.1,54.5,6.0,6,2
-CH,Changeup,2024-04-26,85.0,1823,1.11,0.68,-0.78,2.12,7,hit_into_play,0,2,L,L,18,3,669373,Tarik Skubal,-2.1,54.5,6.0,6,2
-FF,4-Seam Fastball,2024-05-01,96.3,2408,0.48,1.48,0.17,2.81,5,foul,0,1,R,L,19,1,669373,Tarik Skubal,-2.1,54.5,6.0,7,0
-SL,Slider,2024-05-01,85.8,2545,-1.45,0.27,-0.34,2.34,7,called_strike,0,2,R,L,19,2,669373,Tarik Skubal,-2.1,54.5,6.0,7,0
-CU,Curveball,2024-05-01,79.0,2678,-0.88,-1.24,0.56,1.89,8,swinging_strike,0,2,R,L,19,3,669373,Tarik Skubal,-2.1,54.5,6.0,7,0
-FF,4-Seam Fastball,2024-05-01,95.8,2387,0.52,1.45,-0.15,2.95,5,called_strike,0,1,L,L,20,1,669373,Tarik Skubal,-2.1,54.5,6.0,7,1
-CH,Changeup,2024-05-01,85.2,1812,1.14,0.67,0.34,2.23,6,foul,0,2,L,L,20,2,669373,Tarik Skubal,-2.1,54.5,6.0,7,1
-SL,Slider,2024-05-01,86.5,2590,-1.36,0.25,-0.67,2.56,7,ball,1,2,L,L,20,3,669373,Tarik Skubal,-2.1,54.5,6.0,7,1
-FF,4-Seam Fastball,2024-05-01,96.5,2418,0.47,1.51,0.23,3.34,2,hit_into_play,1,2,L,L,20,4,669373,Tarik Skubal,-2.1,54.5,6.0,7,1
-FF,4-Seam Fastball,2024-05-01,95.5,2376,0.54,1.42,-0.28,2.67,5,swinging_strike,0,1,R,L,21,1,669373,Tarik Skubal,-2.1,54.5,6.0,7,2
-SL,Slider,2024-05-01,86.6,2589,-1.38,0.28,0.45,2.12,6,foul,0,2,R,L,21,2,669373,Tarik Skubal,-2.1,54.5,6.0,7,2
-CU,Curveball,2024-05-01,78.5,2645,-0.91,-1.21,-0.56,1.67,13,ball,1,2,R,L,21,3,669373,Tarik Skubal,-2.1,54.5,6.0,7,2
-FF,4-Seam Fastball,2024-05-01,96.2,2405,0.49,1.50,0.12,3.56,11,ball,2,2,R,L,21,4,669373,Tarik Skubal,-2.1,54.5,6.0,7,2
-SL,Slider,2024-05-01,85.9,2556,-1.47,0.29,-0.23,2.45,7,swinging_strike,2,2,R,L,21,5,669373,Tarik Skubal,-2.1,54.5,6.0,7,2
+pitch_type,pitch_name,game_date,release_speed,release_spin_rate,pfx_x,pfx_z,plate_x,plate_z,zone,description,balls,strikes,stand,p_throws,at_bat_number,pitch_number,pitcher,player_name,release_pos_x,release_pos_y,release_pos_z,inning,outs_when_up,events
+FF,4-Seam Fastball,2024-04-01,94.8,2398,0.52,1.35,-0.23,2.92,4,called_strike,0,0,R,L,1,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+SL,Slider,2024-04-01,85.6,2589,-1.35,0.28,0.45,2.15,6,swinging_strike,0,1,R,L,1,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-01,95.2,2412,0.48,1.38,0.12,2.78,5,ball,1,2,R,L,1,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+CU,Curveball,2024-04-01,78.5,2765,-0.78,-1.18,0.34,1.45,8,hit_into_play,1,2,R,L,1,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,field_out
+FF,4-Seam Fastball,2024-04-01,94.5,2385,0.55,1.32,-0.45,2.85,4,ball,0,0,L,L,2,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CH,Changeup,2024-04-01,86.8,1756,1.28,0.82,0.67,2.35,6,swinging_strike,1,0,L,L,2,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-01,95.0,2405,0.50,1.36,-0.12,3.05,2,foul,1,1,L,L,2,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+SL,Slider,2024-04-01,86.2,2612,-1.42,0.25,0.89,1.78,11,swinging_strike,1,2,L,L,2,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,strikeout
+FF,4-Seam Fastball,2024-04-01,95.4,2418,0.46,1.40,0.23,2.95,2,called_strike,0,0,R,L,3,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,2,
+SL,Slider,2024-04-01,85.8,2598,-1.38,0.30,-0.34,2.08,7,ball,1,1,R,L,3,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,2,
+FF,4-Seam Fastball,2024-04-01,94.9,2402,0.51,1.37,0.45,2.72,5,foul,1,2,R,L,3,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,2,
+CU,Curveball,2024-04-01,78.2,2778,-0.82,-1.15,-0.23,1.32,8,swinging_strike,1,2,R,L,3,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,2,strikeout
+FF,4-Seam Fastball,2024-04-02,94.6,2392,0.53,1.34,-0.56,2.88,4,called_strike,0,0,L,L,1,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+CH,Changeup,2024-04-02,87.0,1762,1.25,0.85,0.78,2.42,6,ball,1,1,L,L,1,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-02,95.1,2408,0.49,1.38,-0.12,2.95,5,swinging_strike,1,2,L,L,1,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,strikeout
+SL,Slider,2024-04-02,85.9,2605,-1.40,0.27,0.34,1.95,7,ball,0,0,R,L,2,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-02,95.3,2415,0.47,1.39,0.56,2.78,5,called_strike,1,0,R,L,2,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+SL,Slider,2024-04-02,86.0,2595,-1.36,0.29,-0.23,2.12,7,hit_into_play,1,1,R,L,2,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,single
+FF,4-Seam Fastball,2024-04-02,94.7,2388,0.54,1.33,-0.34,2.82,4,ball,0,0,L,L,3,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CU,Curveball,2024-04-02,78.8,2758,-0.75,-1.20,0.45,1.48,8,called_strike,1,0,L,L,3,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-02,95.5,2420,0.45,1.41,-0.12,3.08,2,foul,1,1,L,L,3,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CH,Changeup,2024-04-02,86.5,1748,1.30,0.78,0.67,2.25,6,swinging_strike,1,2,L,L,3,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,strikeout
+SL,Slider,2024-04-02,86.1,2608,-1.39,0.26,0.23,2.02,6,called_strike,0,0,R,L,4,1,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+FF,4-Seam Fastball,2024-04-02,95.0,2400,0.50,1.36,-0.45,2.72,4,ball,1,1,R,L,4,2,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+CU,Curveball,2024-04-02,78.4,2770,-0.80,-1.17,0.12,1.55,8,hit_into_play,1,1,R,L,4,3,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,field_out
+FF,4-Seam Fastball,2024-04-03,94.8,2395,0.52,1.35,0.34,2.98,2,called_strike,0,0,L,L,1,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+SL,Slider,2024-04-03,85.7,2592,-1.37,0.28,-0.56,1.85,7,swinging_strike,0,1,L,L,1,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-03,95.2,2410,0.48,1.38,0.12,2.85,5,foul,0,2,L,L,1,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+CH,Changeup,2024-04-03,86.9,1755,1.27,0.83,0.78,2.32,6,hit_into_play,0,2,L,L,1,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,double
+FF,4-Seam Fastball,2024-04-03,94.5,2382,0.56,1.31,-0.23,2.75,4,ball,0,0,R,L,2,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+SL,Slider,2024-04-03,86.3,2615,-1.43,0.24,0.45,2.18,6,called_strike,1,0,R,L,2,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-03,95.4,2416,0.46,1.40,-0.12,3.02,2,swinging_strike,1,1,R,L,2,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+CU,Curveball,2024-04-03,78.0,2782,-0.85,-1.12,0.34,1.28,13,ball,2,2,R,L,2,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-03,95.1,2407,0.49,1.37,0.56,2.88,5,hit_into_play,2,2,R,L,2,5,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,field_out
+SL,Slider,2024-04-03,85.8,2600,-1.38,0.29,-0.34,1.92,7,called_strike,0,0,L,L,3,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-03,94.9,2398,0.51,1.36,0.67,2.95,2,ball,1,1,L,L,3,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CH,Changeup,2024-04-03,87.1,1760,1.24,0.86,-0.23,2.38,4,swinging_strike,1,2,L,L,3,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,strikeout
+FF,4-Seam Fastball,2024-04-03,95.3,2413,0.47,1.39,0.12,2.82,5,called_strike,0,0,R,L,4,1,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+SL,Slider,2024-04-03,86.0,2602,-1.41,0.26,-0.45,2.05,7,foul,0,1,R,L,4,2,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+FF,4-Seam Fastball,2024-04-03,95.0,2403,0.50,1.37,0.34,2.72,5,ball,1,2,R,L,4,3,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+CU,Curveball,2024-04-03,78.6,2768,-0.77,-1.19,-0.12,1.42,8,swinging_strike,1,2,R,L,4,4,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,strikeout
+FF,4-Seam Fastball,2024-04-04,94.6,2390,0.53,1.34,-0.23,2.78,4,ball,0,0,L,L,1,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+SL,Slider,2024-04-04,85.9,2596,-1.36,0.30,0.56,1.88,11,swinging_strike,1,0,L,L,1,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-04,95.2,2408,0.48,1.38,-0.12,2.92,5,called_strike,1,1,L,L,1,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+CH,Changeup,2024-04-04,86.7,1752,1.29,0.80,0.78,2.28,6,hit_into_play,1,2,L,L,1,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,force_out
+SL,Slider,2024-04-04,86.2,2610,-1.40,0.25,0.23,2.12,6,called_strike,0,0,R,L,2,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-04,95.4,2418,0.46,1.40,-0.34,3.05,2,foul,0,1,R,L,2,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CU,Curveball,2024-04-04,78.3,2775,-0.81,-1.16,0.45,1.52,8,ball,1,2,R,L,2,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-04,94.8,2395,0.52,1.35,-0.12,2.85,5,swinging_strike,1,2,R,L,2,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,strikeout
+FF,4-Seam Fastball,2024-04-04,94.7,2388,0.54,1.33,0.34,2.98,2,called_strike,0,0,L,L,3,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,2,
+SL,Slider,2024-04-04,85.6,2588,-1.34,0.31,-0.45,1.95,7,swinging_strike,0,1,L,L,3,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,2,
+FF,4-Seam Fastball,2024-04-04,95.0,2402,0.50,1.36,0.56,2.72,5,ball,1,2,L,L,3,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,2,
+CH,Changeup,2024-04-04,86.8,1758,1.26,0.84,0.12,2.42,6,hit_into_play,1,2,L,L,3,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,2,home_run
+FF,4-Seam Fastball,2024-04-05,95.1,2406,0.49,1.37,0.23,2.85,5,ball,0,0,R,L,1,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+SL,Slider,2024-04-05,86.1,2604,-1.39,0.27,-0.56,2.08,7,called_strike,1,0,R,L,1,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-05,95.3,2412,0.47,1.39,0.12,3.02,2,foul,1,1,R,L,1,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+CU,Curveball,2024-04-05,78.7,2762,-0.76,-1.20,-0.23,1.35,8,swinging_strike,1,2,R,L,1,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,strikeout
+SL,Slider,2024-04-05,85.8,2598,-1.37,0.28,0.67,1.82,11,ball,0,0,L,L,2,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-05,94.9,2400,0.51,1.36,-0.34,2.75,4,called_strike,1,0,L,L,2,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CH,Changeup,2024-04-05,86.6,1750,1.28,0.81,0.45,2.35,6,swinging_strike,1,1,L,L,2,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-05,95.2,2410,0.48,1.38,-0.12,2.92,5,hit_into_play,1,2,L,L,2,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,single
+FF,4-Seam Fastball,2024-04-05,95.0,2404,0.50,1.37,0.34,2.78,5,called_strike,0,0,R,L,3,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+SL,Slider,2024-04-05,86.0,2600,-1.38,0.29,-0.23,2.15,7,foul,0,1,R,L,3,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-05,94.8,2396,0.52,1.35,0.56,2.85,5,ball,1,2,R,L,3,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CU,Curveball,2024-04-05,78.5,2772,-0.79,-1.18,0.12,1.48,8,hit_into_play,1,2,R,L,3,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,field_out
+SL,Slider,2024-04-05,85.7,2594,-1.35,0.30,0.78,1.98,11,swinging_strike,0,0,L,L,4,1,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+FF,4-Seam Fastball,2024-04-05,95.1,2408,0.49,1.38,-0.45,2.82,4,called_strike,0,1,L,L,4,2,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+CH,Changeup,2024-04-05,86.9,1756,1.25,0.85,0.23,2.28,4,ball,1,2,L,L,4,3,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+FF,4-Seam Fastball,2024-04-05,95.3,2414,0.47,1.39,-0.12,3.08,2,swinging_strike,1,2,L,L,4,4,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,strikeout
+FF,4-Seam Fastball,2024-04-06,94.7,2392,0.53,1.34,0.34,2.95,2,called_strike,0,0,R,L,1,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+SL,Slider,2024-04-06,85.9,2602,-1.40,0.26,-0.23,2.02,7,ball,1,1,R,L,1,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-06,95.0,2400,0.50,1.36,0.45,2.72,5,foul,1,2,R,L,1,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+CU,Curveball,2024-04-06,78.4,2768,-0.80,-1.17,-0.34,1.42,8,swinging_strike,1,2,R,L,1,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,strikeout
+FF,4-Seam Fastball,2024-04-06,94.6,2386,0.55,1.32,-0.12,2.88,5,ball,0,0,L,L,2,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+SL,Slider,2024-04-06,86.2,2608,-1.42,0.25,0.67,1.78,11,swinging_strike,1,0,L,L,2,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-06,95.2,2406,0.48,1.38,0.12,2.98,5,called_strike,1,1,L,L,2,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CH,Changeup,2024-04-06,86.7,1754,1.27,0.82,-0.23,2.32,4,hit_into_play,1,2,L,L,2,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,grounded_into_double_play
+SL,Slider,2024-04-06,85.8,2596,-1.36,0.29,0.34,2.05,6,called_strike,0,0,R,L,3,1,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+FF,4-Seam Fastball,2024-04-06,95.1,2410,0.49,1.37,-0.45,2.82,4,ball,1,1,R,L,3,2,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+CU,Curveball,2024-04-06,78.6,2764,-0.78,-1.19,0.56,1.38,8,foul,1,2,R,L,3,3,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,
+FF,4-Seam Fastball,2024-04-06,95.4,2416,0.46,1.40,0.12,3.12,2,swinging_strike,1,2,R,L,3,4,669373,Tarik Skubal,-2.0,54.2,5.9,2,0,strikeout
+FF,4-Seam Fastball,2024-04-07,94.8,2394,0.52,1.35,-0.34,2.75,4,called_strike,0,0,L,L,1,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+SL,Slider,2024-04-07,86.0,2600,-1.38,0.28,0.78,1.92,11,foul,0,1,L,L,1,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+FF,4-Seam Fastball,2024-04-07,95.3,2412,0.47,1.39,0.12,2.92,5,ball,1,2,L,L,1,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,
+CH,Changeup,2024-04-07,86.8,1758,1.26,0.84,-0.23,2.38,4,swinging_strike,1,2,L,L,1,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,0,strikeout
+SL,Slider,2024-04-07,85.7,2592,-1.35,0.30,0.45,1.88,7,ball,0,0,R,L,2,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-07,94.9,2398,0.51,1.36,-0.12,2.85,5,called_strike,1,0,R,L,2,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CU,Curveball,2024-04-07,78.2,2776,-0.82,-1.15,0.34,1.45,8,swinging_strike,1,1,R,L,2,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-07,95.5,2420,0.45,1.41,0.56,2.78,5,hit_into_play,1,2,R,L,2,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,triple
+FF,4-Seam Fastball,2024-04-07,94.6,2388,0.54,1.33,-0.23,2.95,4,called_strike,0,0,L,L,3,1,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+SL,Slider,2024-04-07,86.1,2606,-1.41,0.26,0.67,1.82,11,swinging_strike,0,1,L,L,3,2,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+FF,4-Seam Fastball,2024-04-07,95.2,2408,0.48,1.38,0.12,2.72,5,ball,1,2,L,L,3,3,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,
+CH,Changeup,2024-04-07,86.6,1752,1.28,0.80,-0.34,2.25,4,hit_into_play,1,2,L,L,3,4,669373,Tarik Skubal,-2.0,54.2,5.9,1,1,field_out
