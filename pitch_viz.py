@@ -529,7 +529,13 @@ def analyze_pitch_sequences(
 
         # Create sequences for selected indices
         for i in indices:
-            sequence = tuple(pitches[i:i + sequence_length])
+            # Filter out NaN values and convert to strings
+            sequence_raw = pitches[i:i + sequence_length]
+            sequence = tuple(str(p) for p in sequence_raw if pd.notna(p))
+
+            # Skip if sequence is incomplete
+            if len(sequence) != sequence_length:
+                continue
 
             # Get outcome of final pitch in sequence
             final_pitch = ab_group.iloc[i + sequence_length - 1]

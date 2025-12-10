@@ -459,10 +459,14 @@
             padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
             display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .tunnel-header-top {
+            display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
         }
 
         .tunnel-title {
@@ -474,6 +478,7 @@
             display: flex;
             gap: 0.75rem;
             flex-wrap: wrap;
+            min-height: 40px;
         }
 
         .pitch-toggle {
@@ -1038,11 +1043,13 @@
         <div id="tunnel-panel" class="tab-panel">
             <div class="tunnel-container">
                 <div class="tunnel-header">
-                    <h2 class="tunnel-title">3D Pitch Trajectories</h2>
+                    <div class="tunnel-header-top">
+                        <h2 class="tunnel-title">3D Pitch Trajectories</h2>
+                        <button class="load-tunnel-btn" id="load-tunnel-btn">Load Visualization</button>
+                    </div>
                     <div class="tunnel-options" id="pitch-toggles">
                         <!-- Dynamically populated -->
                     </div>
-                    <button class="load-tunnel-btn" id="load-tunnel-btn">Load Visualization</button>
                 </div>
                 <iframe id="tunnel-frame" class="tunnel-frame" srcdoc="<div style='display:flex;align-items:center;justify-content:center;height:100%;color:#8b949e;font-family:sans-serif;'>Select pitch types and click Load Visualization</div>"></iframe>
             </div>
